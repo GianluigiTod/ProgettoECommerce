@@ -1,6 +1,6 @@
 package com.example.backend.repository;
 
-import com.example.backend.model.Utente;
+import com.example.backend.model.Set;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,8 +11,9 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public interface UtenteRepository extends JpaRepository<Utente,Long> {
-    Optional<Utente> findUtenteById(Long id);
-    @Query("SELECT u FROM Utente u where u.username = :username")
-    Optional<Utente> findUtenteByUsername(@Param("username") String username);
+public interface SetRepository extends JpaRepository<Set, Long> {
+    Optional<Set> findSetById(Long id);
+
+    @Query("SELECT s FROM Set s where s.setCode = :setCode")
+    Optional<Set> findSetByCode(@Param("setCode") String setCode);
 }

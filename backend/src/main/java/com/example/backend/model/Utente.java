@@ -6,7 +6,7 @@ import lombok.Data;
 @Entity
 @Data
 public class Utente {
-    public enum Ruolo{cliente}
+    public enum Ruolo{cliente, admin, venditore}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

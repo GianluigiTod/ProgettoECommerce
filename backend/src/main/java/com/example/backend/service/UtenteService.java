@@ -9,8 +9,12 @@ import com.example.backend.model.Utente;
 import com.example.backend.repository.UtenteRepository;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
 public class UtenteService  {
@@ -32,6 +38,7 @@ public class UtenteService  {
         if(utenteRepository.findUtenteByUsername(u.getUsername()).isPresent())
             throw new UtenteEsistente("");
         addKeyCloak(u);
+        assignClientRoleToUser(u.getUsername(), u.getRuolo().name());//per assegnargli il ruolo
         return utenteRepository.save(u);
     }
 
@@ -61,8 +68,8 @@ public class UtenteService  {
             utente_precedente.setIndirizzo(u.getIndirizzo());
             utente_precedente.setCognome(u.getCognome());
             deleteKeycloak(utente_precedente);
-            addKeyCloak(u);
-            return utenteRepository.save(u);
+            addKeyCloak(utente_precedente);//verifica se la modifica funziona, ho appena cambiato u con utente_precedente qui
+            return utenteRepository.save(utente_precedente);//e qui
         }else{
             throw new UtenteInesistente("");
         }
@@ -112,7 +119,8 @@ public class UtenteService  {
         user.setEmailVerified(true);
 
 
-//       Get realm
+
+        //Get realm
         RealmResource realmResource = keycloak.realm(KeycloakConfig.realm);
         UsersResource usersResource = realmResource.users();
 
@@ -122,6 +130,7 @@ public class UtenteService  {
         credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
         credentialRepresentation.setValue(utente.getPassword());
         user.setCredentials(Collections.singletonList(credentialRepresentation));
+
 
 
         Response response = usersResource.create(user);
@@ -136,6 +145,8 @@ public class UtenteService  {
             response.close();
             throw new UtenteEsistente("user not created");
         }
+
+
     }
 
     private static CredentialRepresentation createPasswordCredentials(String password) {
@@ -167,6 +178,38 @@ public class UtenteService  {
             System.err.println("Errore durante l'eliminazione dell'utente: " + e.getMessage());
             // Gestisci l'errore come appropriato
         }
+    }
+
+    public void assignClientRoleToUser(String username, String role) {
+
+        Keycloak keycloak = KeycloakConfig.getInstance();
+        String realm="master";
+
+        List<UserRepresentation> users = keycloak.realm("master").users().search(username);
+        UserRepresentation user = users.get(0);
+        String userId = user.getId();
+
+        UsersResource usersResource = keycloak.realm(realm).users();
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+        UserResource userResource = usersResource.get(userId);
+
+
+        //getting client
+        ClientRepresentation clientRepresentation = keycloak.realm(realm).clients().findAll().stream().filter(client -> client.getClientId().equals("my-app-client")).collect(Collectors.toList()).get(0);
+        System.out.println("clientRepresentation: "+ clientRepresentation);
+        System.out.println("ruolo: "+role);
+        System.out.println("id: "+userId);
+
+        ClientResource clientResource = keycloak.realm(realm).clients().get(clientRepresentation.getId());
+        //getting role
+        RoleRepresentation roleRepresentation = clientResource.roles().list().stream().filter(element -> element.getName().equals(role)).collect(Collectors.toList()).get(0);
+        System.out.println("roleRepresentation: "+ roleRepresentation);
+        //assigning to user
+        userResource.roles().clientLevel(clientRepresentation.getId()).add(Collections.singletonList(roleRepresentation));
+
+
     }
 
 
