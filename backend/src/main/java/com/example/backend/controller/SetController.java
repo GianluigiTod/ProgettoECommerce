@@ -37,16 +37,7 @@ public class SetController {
             @RequestParam("setName") String setName,
             @RequestPart("file") MultipartFile file) throws SetEsistente, IOException {
 
-        try {
-            Set set = new Set();
-            set.setSetCode(setCode);
-            set.setSetName(setName);
-
-            Set createdSet = setService.createSetWithImage(set, file);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdSet);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image");
-        }
+        return setService.createSetWithImage(setCode,setName,file);
     }
 
     @GetMapping("/{id}/image")
@@ -67,6 +58,12 @@ public class SetController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Set> updateSet(@RequestBody Set set) throws SetInesistente{
         return ResponseEntity.ok(setService.aggiornaSet(set));
+    }
+
+    @PutMapping("/update/{id}/image")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> updateSetImage(@RequestPart MultipartFile file, @PathVariable Long id) throws SetInesistente, IOException {
+        return setService.aggiornaImmagineSet(file, id);
     }
 
 }
