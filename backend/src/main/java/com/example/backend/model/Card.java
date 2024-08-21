@@ -1,11 +1,16 @@
 package com.example.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
 public class Card {
+
+    public enum Rarity{comune, non_comune, rara, rara_mitica}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,23 +20,52 @@ public class Card {
     private String name;
     @Column(nullable = false)
     private float prezzo;
-    @Column(nullable = false)
-    private String username_venditore;
+    @Column(nullable = false, name="venditore_username")
+    private String usernameVenditore;
 
     private String manaCost;
     private String type;
-    private String rarity;
+
+    @Enumerated(EnumType.STRING)
+    private Rarity rarity;
+
+    @Column(length = 1023)
     private String text;
+
     private Integer power;
     private Integer toughness;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name="set_code")
     private String setCode;
 
-    private String setName;
     @Lob
-    @Column(name = "image", columnDefinition = "BYTEA")
-    private String image;
+    @Column
+    private String imagePath;
 
-    //vanno definiti meglio questi campi, cioè se devono essere unici oppure non nulli oppure enum etc..
+    @Column(nullable = false)
+    private int quantita;
+
+    @Version
+    @JsonIgnore
+    private Long version;
+
+    // Associazione con Utente usando il campo username_venditore
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "venditore_username", referencedColumnName = "username", insertable = false, updatable = false)
+    private Utente venditore;
+
+
+    // Associazione con Set usando il campo setCode
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "set_code", referencedColumnName = "setCode", insertable = false, updatable = false)
+    private Set set;
+
+
+
+    // Relazione con CartItem
+    @OneToMany(mappedBy = "card")
+    @JsonIgnore
+    private List<CartItem> cartItems;
 }

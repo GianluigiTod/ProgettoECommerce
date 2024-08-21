@@ -27,7 +27,7 @@ public class Utils {
         Map<String, Object> claims = jwt.getClaims();
         logger.info("JWT Claims: " + claims); // Logga tutti i claims
 
-        String username = (String) claims.get("given_name");
+        String username = (String) claims.get("preferred_username");
         if (username == null) {
             logger.error("Username claim is missing");
         }

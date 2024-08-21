@@ -3,6 +3,8 @@ package com.example.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 public class Utente {
@@ -33,5 +35,11 @@ public class Utente {
 
     @Enumerated(EnumType.STRING)
     private Ruolo ruolo;
+
+    // Relazione con l'entità Card
+    @OneToMany(mappedBy = "venditore")
+    private List<Card> cards;
+
+
 
 }

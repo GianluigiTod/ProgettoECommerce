@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class SetService {
     @Autowired
     private ImageService imageService;
 
+    @Transactional(readOnly = false)
     public ResponseEntity<?> createSetWithImage(String setCode, String setName, MultipartFile file) {
         try {
             Set set = new Set();
@@ -54,11 +56,10 @@ public class SetService {
     }
 
     @Transactional(readOnly = true)
-    public Set ottieniSet(RichiestaSet richiesta)throws SetInesistente {
-        String codiceSet = richiesta.getSetCode();
-        Optional<Set> set = setRepository.findSetByCode(codiceSet);
+    public Set ottieniSet(Long id)throws SetInesistente {
+        Optional<Set> set = setRepository.findSetById(id);
         if(!set.isPresent()){
-            throw new SetInesistente("Il set con il codice " + codiceSet + " non esiste");
+            throw new SetInesistente("Il set di id " + id + " non esiste");
         }
         Set s = set.get();
         return s;
@@ -90,12 +91,20 @@ public class SetService {
     }
 
     @Transactional(readOnly = false)
-    public void eliminaSet(Set set) throws SetInesistente{
-        if(!setRepository.findSetByCode(set.getSetCode()).isPresent()){
-            throw new SetInesistente("Il Set " + set.getSetCode() + " non esiste");
+    public ResponseEntity eliminaSet(Long id) throws SetInesistente{
+        Optional<Set> setOptional = setRepository.findSetById(id);
+        if(!setOptional.isPresent()){
+            throw new SetInesistente("Il Set " + id + " non esiste");
         }
+        Set set = setOptional.get();
         setRepository.delete(set);
         imageService.eliminaImmagine(set.getImagePath());
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Set> ottieniTuttiSet(){
+        return setRepository.findAll();
     }
 
 

@@ -65,9 +65,15 @@ public class ImageService {
 
     public void eliminaImmagine(String filename) {
         File file = Paths.get(imageUploadDir, filename).toFile();
+        boolean deleted;
         if (file.exists()) {
-            if (!file.delete()) {
-                throw new RuntimeException("Failed to delete image: " + filename);
+            if(!filename.equals("/immagine_mancante.jpg")){
+                deleted = file.delete();
+                if (!deleted) {
+                    throw new RuntimeException("Failed to delete image: " + filename);
+                }
+            }else{
+                System.out.println("L'immagine mancante non è stata eliminata");
             }
         } else {
             throw new RuntimeException("Image not found: " + filename);
