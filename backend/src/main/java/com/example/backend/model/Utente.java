@@ -1,9 +1,11 @@
 package com.example.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -36,10 +38,15 @@ public class Utente {
     @Enumerated(EnumType.STRING)
     private Ruolo ruolo;
 
+
     // Relazione con l'entità Card
-    @OneToMany(mappedBy = "venditore")
+    @OneToMany(mappedBy = "venditore", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Card> cards;
 
 
-
+    // Relazione con CartItem
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<CartItem> cartItems;
 }

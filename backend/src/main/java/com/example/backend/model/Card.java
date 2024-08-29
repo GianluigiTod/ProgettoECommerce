@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -60,12 +60,11 @@ public class Card {
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "set_code", referencedColumnName = "setCode", insertable = false, updatable = false)
-    private Set set;
+    private com.example.backend.model.Set set;
 
 
 
-    // Relazione con CartItem
-    @OneToMany(mappedBy = "card")
+    @OneToMany(mappedBy = "originalCard", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
-    private List<CartItem> cartItems;
+    private Set<CartItem> cartItems;
 }

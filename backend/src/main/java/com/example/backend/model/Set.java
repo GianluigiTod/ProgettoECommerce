@@ -26,7 +26,7 @@ public class Set {
 
 
     // Relazione con l'entità Card
-    @OneToMany(mappedBy = "set")
+    @OneToMany(mappedBy = "set", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
     private List<Card> cards;
 

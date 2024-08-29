@@ -3,7 +3,12 @@ package com.example.backend.service;
 import com.example.backend.config.Utils;
 import com.example.backend.exception.CartaInesistente;
 import com.example.backend.model.Card;
+import com.example.backend.model.CartItem;
+import com.example.backend.model.Utente;
 import com.example.backend.repository.CardRepository;
+import com.example.backend.repository.CartItemRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
@@ -12,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CardService {
@@ -28,6 +35,12 @@ public class CardService {
 
     @Autowired
     private ImageService imageService;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Card getCardById(Long id) throws CartaInesistente {
@@ -89,6 +102,7 @@ public class CardService {
     @Transactional(readOnly = false)
     public Card createCard(Card card) {
 
+        //decidere se voglio che le carte abbiano delle colonne uniche, dato che hanno la quantià, ed eventualmente controllare che sia verficata
         if(!card.getUsernameVenditore().equals(Utils.getUser()))
             throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
 
@@ -114,7 +128,7 @@ public class CardService {
                     Card c = card.get();
 
                     if(!c.getUsernameVenditore().equals(Utils.getUser()))
-                    throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+                        throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
 
                     if(c.getImagePath() != null){
                         imageService.eliminaImmagine(c.getImagePath());
@@ -141,7 +155,7 @@ public class CardService {
             Card card = optionalCard.get();
 
             if(!card.getUsernameVenditore().equals(Utils.getUser()))
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
 
             if (c.getName() != null) {
                 card.setName(c.getName());
@@ -177,6 +191,7 @@ public class CardService {
                 card.setQuantita(c.getQuantita());
             }
 
+
             return cardRepository.save(card);
         }catch(OptimisticLockingFailureException e){
             throw new RuntimeException("Conflitto rilevato durante la modifica della carta");
@@ -193,7 +208,16 @@ public class CardService {
             Card c = optionalCard.get();
 
             if(!c.getUsernameVenditore().equals(Utils.getUser()))
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+
+            // Recupera tutti i CartItem associati alla carta
+            Set<CartItem> cartItems = cartItemRepository.findByOriginalCardId(id);
+
+            // Notifica agli utenti che hanno la carta nel carrello
+            for (CartItem cartItem : cartItems) {
+                Utente utente = cartItem.getUtente();
+                notificationService.notifyUserAboutDeletedCard(utente, c);
+            }
 
             cardRepository.delete(c);
             imageService.eliminaImmagine(c.getImagePath());

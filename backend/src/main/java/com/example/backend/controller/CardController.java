@@ -110,7 +110,7 @@ public class CardController {
         return new ResponseEntity<>(savedCard, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}/setImage")
+    @PutMapping("/setImage/{id}")
     @PreAuthorize("hasRole('venditore')")
     public ResponseEntity<?> addImage(@RequestParam MultipartFile file, @PathVariable Long id) throws CartaInesistente, IOException {
         return cardService.setCardImage(file, id);
@@ -123,7 +123,7 @@ public class CardController {
     }
 
 
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('venditore')")
     public ResponseEntity deleteCard(@PathVariable Long id) throws CartaInesistente {
         return ResponseEntity.ok(cardService.deleteCard(id));

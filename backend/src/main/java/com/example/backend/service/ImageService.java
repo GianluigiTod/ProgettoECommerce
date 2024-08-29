@@ -76,7 +76,7 @@ public class ImageService {
                 System.out.println("L'immagine mancante non è stata eliminata");
             }
         } else {
-            throw new RuntimeException("Image not found: " + filename);
+            //throw new RuntimeException("Image not found: " + filename);
         }
     }
 

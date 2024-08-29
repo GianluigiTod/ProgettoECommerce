@@ -1,0 +1,175 @@
+package com.example.backend.service;
+
+import com.example.backend.config.Utils;
+import com.example.backend.dto.CartItemDTO;
+import com.example.backend.dto.CartItemsResponse;
+import com.example.backend.model.*;
+import com.example.backend.repository.CartItemRepository;
+import com.example.backend.repository.CardRepository;
+import com.example.backend.repository.UtenteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.Set;
+
+@Service
+public class CartService {
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private CardRepository cardRepository;
+    @Autowired
+    private UtenteRepository utenteRepository;
+
+    @Transactional
+    public CartItemsResponse getCartItemsByUser(String username) {
+        if (!username.equals(Utils.getUser())) {
+            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+        }
+
+        Set<CartItem> cartItems = cartItemRepository.findByUtenteUsername(username);
+        boolean hasChanges = false;
+        StringBuilder notificationMessage = new StringBuilder("Le seguenti modifiche sono state rilevate nel tuo carrello:\n");
+
+        for (CartItem cartItem : cartItems) {
+            if (checkForCardChanges(cartItem)) {
+                hasChanges = true;
+                notificationMessage.append(String.format("La carta %s è stata modificata.\n", cartItem.getCardSnapshot().getName()));
+
+                // Aggiorna il cardSnapshot nel cartItem
+                updateCardSnapshot(cartItem, cartItem.getOriginalCard());
+                cartItemRepository.save(cartItem);
+            }
+        }
+
+        CartItemsResponse response = new CartItemsResponse();
+        response.setItems(cartItems);
+        response.setHasChanged(hasChanges);
+        if (hasChanges) {
+            response.setMessage(notificationMessage.toString());
+        }
+
+        return response;
+    }
+
+    @Transactional(readOnly = false)
+    public void updateCardSnapshot(CartItem cartItem, Card originalCard) {
+        CardSnapshot snapshot = cartItem.getCardSnapshot();
+        snapshot.setName(originalCard.getName());
+        snapshot.setSetCode(originalCard.getSetCode());
+        snapshot.setUsernameVenditore(originalCard.getUsernameVenditore());
+    }
+
+    //L'unico modo per poter cambiare il prezzo del cartItem è cancellare l'articolo nel carrello
+    public boolean checkForCardChanges(CartItem cartItem) {
+        Card originalCard = cartItem.getOriginalCard();
+
+        CardSnapshot cardSnapshot = cartItem.getCardSnapshot();
+
+        //Da notare che qui non confronto il prezzo
+        boolean changes = !originalCard.getName().equals(cardSnapshot.getName()) ||
+                !originalCard.getSetCode().equals(cardSnapshot.getSetCode()) ||
+                !originalCard.getUsernameVenditore().equals(cardSnapshot.getUsernameVenditore());
+
+        return changes;
+    }
+
+
+
+        @Transactional(readOnly = false)
+        public CartItem addCartItem(CartItemDTO dto) {
+            Optional<Card> cardOptional = cardRepository.findById(dto.getCardId());
+            if (cardOptional.isPresent()) {
+                Card card = cardOptional.get();
+
+                Optional<Utente> utenteOptional = utenteRepository.findById(dto.getUtenteId());
+                if (utenteOptional.isPresent()) {
+                    Utente utente = utenteOptional.get();
+
+                    if(!utente.getUsername().equals(Utils.getUser()))
+                        throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login.");
+
+                    if (dto.getQuantity() > card.getQuantita()) {
+                        throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+                    }
+                    if(dto.getQuantity() <= 0){
+                        throw new IllegalArgumentException("La quantità deve necessariamente essere maggiore di 0.");
+                    }
+
+
+                    // Crea un CardSnapshot basato sulla carta corrente
+                    CardSnapshot cardSnapshot = new CardSnapshot();
+                    cardSnapshot.setName(card.getName());
+                    cardSnapshot.setSetCode(card.getSetCode());
+                    cardSnapshot.setUsernameVenditore(card.getUsernameVenditore());
+
+
+                    Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
+                    if (existingCartItem.isPresent()) {
+                        CartItem item = existingCartItem.get();
+                        if (dto.getQuantity() + item.getQuantity() > card.getQuantita()) {
+                            throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+                        }
+                        item.setQuantity(item.getQuantity() + dto.getQuantity());
+                        return cartItemRepository.save(item);
+                    }else{
+                        CartItem cartItem = new CartItem();
+                        cartItem.setUtente(utente);
+                        cartItem.setOriginalCard(card);
+                        cartItem.setCardSnapshot(cardSnapshot);
+                        cartItem.setQuantity(dto.getQuantity());
+                        cartItem.setPrezzo(card.getPrezzo());
+                        return cartItemRepository.save(cartItem);
+                    }
+                }else{
+                    throw new IllegalArgumentException("User does not exist.");
+                }
+            } else {
+                throw new IllegalArgumentException("Card not found.");
+            }
+        }
+
+    @Transactional(readOnly = false)
+    public CartItem updateCartItem(Long id, int quantity) {
+        Optional<CartItem> cartItemOptional = cartItemRepository.findById(id);
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItem = cartItemOptional.get();
+            String username = cartItem.getUtente().getUsername();
+            if(!username.equals(Utils.getUser()))
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+
+            if(quantity <= 0){
+                throw new IllegalArgumentException("La quantità deve essere maggiore di zero.");
+            }
+
+            Card card = cartItem.getOriginalCard();
+            if (quantity <= card.getQuantita()) {
+                cartItem.setQuantity(quantity);
+                return cartItemRepository.save(cartItem);
+            } else {
+                throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+            }
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = false)
+    public boolean deleteCartItem(Long id) {
+        Optional<CartItem> cartItemOptional = cartItemRepository.findById(id);
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItem = cartItemOptional.get();
+            String username = cartItem.getUtente().getUsername();
+            if(!username.equals(Utils.getUser()))
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+
+            cartItemRepository.delete(cartItem);
+            return true;
+        }
+        return false;
+    }
+}
+
