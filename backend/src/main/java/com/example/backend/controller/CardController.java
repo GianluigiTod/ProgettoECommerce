@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/cards")
+@RequestMapping("/api/card")
 public class CardController {
 
     @Autowired

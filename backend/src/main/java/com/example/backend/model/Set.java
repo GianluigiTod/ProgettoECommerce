@@ -20,7 +20,6 @@ public class Set {
     @Column
     private String setName;
 
-    @Lob
     @Column
     private String imagePath;
 

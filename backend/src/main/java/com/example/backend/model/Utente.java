@@ -49,4 +49,9 @@ public class Utente {
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<CartItem> cartItems;
+
+    //Relazione con Ordine
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Ordine> listaOrdini;
 }

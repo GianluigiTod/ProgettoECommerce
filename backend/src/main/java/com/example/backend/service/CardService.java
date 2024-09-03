@@ -46,7 +46,7 @@ public class CardService {
     public Card getCardById(Long id) throws CartaInesistente {
         Optional<Card> card = cardRepository.findCardById(id);
         if(!card.isPresent()){
-            throw new CartaInesistente("La carta con id: "+id+" non esiste");
+            throw new CartaInesistente();
         }
         Card c = card.get();
         return c;
@@ -122,7 +122,7 @@ public class CardService {
         try{
             Optional<Card> card = cardRepository.findById(id);
             if(!card.isPresent()){
-                throw new CartaInesistente("La carta non esiste");
+                throw new CartaInesistente();
             }else{
                 try{
                     Card c = card.get();
@@ -150,7 +150,7 @@ public class CardService {
         try{
             Optional<Card> optionalCard = cardRepository.findById(c.getId());
             if(!optionalCard.isPresent()){
-                throw new CartaInesistente("La carta con id: "+c.getId()+" non esiste");
+                throw new CartaInesistente();
             }
             Card card = optionalCard.get();
 
@@ -203,7 +203,7 @@ public class CardService {
         try{
             Optional<Card> optionalCard = cardRepository.findById(id);
             if(!optionalCard.isPresent()){
-                throw new CartaInesistente("La carta non esiste");
+                throw new CartaInesistente();
             }
             Card c = optionalCard.get();
 

@@ -38,7 +38,6 @@ public class Card {
     @Column(nullable = false, name="set_code")
     private String setCode;
 
-    @Lob
     @Column
     private String imagePath;
 

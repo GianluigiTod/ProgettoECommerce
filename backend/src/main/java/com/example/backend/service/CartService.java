@@ -3,6 +3,9 @@ package com.example.backend.service;
 import com.example.backend.config.Utils;
 import com.example.backend.dto.CartItemDTO;
 import com.example.backend.dto.CartItemsResponse;
+import com.example.backend.exception.CartaInesistente;
+import com.example.backend.exception.QuantityProblem;
+import com.example.backend.exception.UtenteInesistente;
 import com.example.backend.model.*;
 import com.example.backend.repository.CartItemRepository;
 import com.example.backend.repository.CardRepository;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,34 +30,52 @@ public class CartService {
     private UtenteRepository utenteRepository;
 
     @Transactional
-    public CartItemsResponse getCartItemsByUser(String username) {
-        if (!username.equals(Utils.getUser())) {
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-        }
-
-        Set<CartItem> cartItems = cartItemRepository.findByUtenteUsername(username);
-        boolean hasChanges = false;
-        StringBuilder notificationMessage = new StringBuilder("Le seguenti modifiche sono state rilevate nel tuo carrello:\n");
-
-        for (CartItem cartItem : cartItems) {
-            if (checkForCardChanges(cartItem)) {
-                hasChanges = true;
-                notificationMessage.append(String.format("La carta %s è stata modificata.\n", cartItem.getCardSnapshot().getName()));
-
-                // Aggiorna il cardSnapshot nel cartItem
-                updateCardSnapshot(cartItem, cartItem.getOriginalCard());
-                cartItemRepository.save(cartItem);
+    public CartItemsResponse getCartItemsByUser(Long id) {
+        Optional<Utente> utenteOptional = utenteRepository.findById(id);
+        if (utenteOptional.isPresent()) {
+            Utente utente = utenteOptional.get();
+            String username = utente.getUsername();
+            if (!username.equals(Utils.getUser())) {
+                throw new IllegalStateException();
             }
-        }
 
-        CartItemsResponse response = new CartItemsResponse();
-        response.setItems(cartItems);
-        response.setHasChanged(hasChanges);
-        if (hasChanges) {
-            response.setMessage(notificationMessage.toString());
-        }
+            Set<CartItem> cartItems = cartItemRepository.findByUtenteUsername(username);
+            boolean hasChanges = false;
+            StringBuilder notificationMessage = new StringBuilder("Le seguenti modifiche sono state rilevate nel tuo carrello:\n");
 
-        return response;
+            for (CartItem cartItem : cartItems) {
+                HashMap<String, Boolean> verifiche = new HashMap<>();
+                verifiche.put("changes", false);
+                verifiche.put("quantityChanges", false);
+                if (checkForCardChanges(cartItem, verifiche)) {
+                    hasChanges = true;
+                    if(verifiche.get("changes")){
+                        notificationMessage.append(String.format("La carta %s è stata modificata.\n", cartItem.getCardSnapshot().getName()));
+                    }
+                    if(verifiche.get("quantityChanges")){
+                        notificationMessage.append(String.format("La quantità della carta %s non è più sufficiente", cartItem.getCardSnapshot().getName()));
+                    }
+
+                    // Aggiorna il cardSnapshot nel cartItem
+                    updateCardSnapshot(cartItem, cartItem.getOriginalCard());
+
+                    //Aggiorna la quantità del cartItem
+                    cartItem.setQuantity(cartItem.getOriginalCard().getQuantita());
+                    cartItemRepository.save(cartItem);
+                }
+            }
+
+            CartItemsResponse response = new CartItemsResponse();
+            response.setItems(cartItems);
+            response.setHasChanged(hasChanges);
+            if (hasChanges) {
+                response.setMessage(notificationMessage.toString());
+            }
+
+            return response;
+        }else{
+            throw new IllegalArgumentException();
+        }
     }
 
     @Transactional(readOnly = false)
@@ -65,7 +87,7 @@ public class CartService {
     }
 
     //L'unico modo per poter cambiare il prezzo del cartItem è cancellare l'articolo nel carrello
-    public boolean checkForCardChanges(CartItem cartItem) {
+    public boolean checkForCardChanges(CartItem cartItem, HashMap<String, Boolean> verifiche) {
         Card originalCard = cartItem.getOriginalCard();
 
         CardSnapshot cardSnapshot = cartItem.getCardSnapshot();
@@ -75,13 +97,19 @@ public class CartService {
                 !originalCard.getSetCode().equals(cardSnapshot.getSetCode()) ||
                 !originalCard.getUsernameVenditore().equals(cardSnapshot.getUsernameVenditore());
 
-        return changes;
+        //Per verificare che la quantità sia ancora sufficiente
+        boolean quantityChanges = cartItem.getQuantity() > originalCard.getQuantita();
+
+        verifiche.put("changes", changes);
+        verifiche.put("quantityChanges", quantityChanges);
+
+        return changes || quantityChanges;
     }
 
 
 
         @Transactional(readOnly = false)
-        public CartItem addCartItem(CartItemDTO dto) {
+        public CartItem addCartItem(CartItemDTO dto) throws QuantityProblem, UtenteInesistente, CartaInesistente {
             Optional<Card> cardOptional = cardRepository.findById(dto.getCardId());
             if (cardOptional.isPresent()) {
                 Card card = cardOptional.get();
@@ -91,14 +119,12 @@ public class CartService {
                     Utente utente = utenteOptional.get();
 
                     if(!utente.getUsername().equals(Utils.getUser()))
-                        throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login.");
+                        throw new IllegalStateException();
 
-                    if (dto.getQuantity() > card.getQuantita()) {
-                        throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+                    if (dto.getQuantity() > card.getQuantita() || dto.getQuantity() <= 0) {
+                        throw new QuantityProblem();
                     }
-                    if(dto.getQuantity() <= 0){
-                        throw new IllegalArgumentException("La quantità deve necessariamente essere maggiore di 0.");
-                    }
+
 
 
                     // Crea un CardSnapshot basato sulla carta corrente
@@ -126,10 +152,10 @@ public class CartService {
                         return cartItemRepository.save(cartItem);
                     }
                 }else{
-                    throw new IllegalArgumentException("User does not exist.");
+                    throw new UtenteInesistente();
                 }
             } else {
-                throw new IllegalArgumentException("Card not found.");
+                throw new CartaInesistente();
             }
         }
 

@@ -36,9 +36,10 @@ public class UtenteService  {
     @Transactional(readOnly = false)
     public Utente registra(Utente u) throws UtenteEsistente {
         if(utenteRepository.findUtenteByUsername(u.getUsername()).isPresent())
-            throw new UtenteEsistente("");
+            throw new UtenteEsistente();
         addKeyCloak(u);
         assignClientRoleToUser(u.getUsername(), u.getRuolo().name());//per assegnargli il ruolo
+        u.setUsername(u.getUsername().toLowerCase());
         return utenteRepository.save(u);
     }
 
@@ -71,7 +72,7 @@ public class UtenteService  {
             addKeyCloak(utente_precedente);//verifica se la modifica funziona, ho appena cambiato u con utente_precedente qui
             return utenteRepository.save(utente_precedente);//e qui
         }else{
-            throw new UtenteInesistente("");
+            throw new UtenteInesistente();
         }
     }
 
@@ -79,7 +80,7 @@ public class UtenteService  {
     public Utente cambiaPassword(AggiornamentoPassword request) throws UtenteInesistente, UtenteEsistente {
         Optional<Utente> utente = utenteRepository.findUtenteByUsername(request.getUsername());
         if(!utente.isPresent())
-            throw new UtenteInesistente("");
+            throw new UtenteInesistente();
         /*
         if(!u.getUsername().equals(Utils.getUser()))
             throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
@@ -96,7 +97,7 @@ public class UtenteService  {
         String username = ric.getUsername();
         Optional<Utente> utente = utenteRepository.findUtenteByUsername(username);
         if(!utente.isPresent()){
-            throw new UtenteInesistente("L'utente con lo username " + username + " non trovato");
+            throw new UtenteInesistente();
         }
         Utente u = utente.get();
         return u;
@@ -143,7 +144,7 @@ public class UtenteService  {
                 System.err.println("Error details: " + response.readEntity(String.class));
 
             response.close();
-            throw new UtenteEsistente("user not created");
+            throw new UtenteEsistente();
         }
 
 

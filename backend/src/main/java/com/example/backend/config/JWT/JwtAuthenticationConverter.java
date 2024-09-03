@@ -36,11 +36,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
                 extractResourceRoles(jwt).stream()
         ).collect(Collectors.toSet());
 
-        return new JwtAuthenticationToken(
-                jwt,
-                authorities,
-                getPrincipleClaimName(jwt)
-        );
+        return new JwtAuthenticationToken(jwt, authorities, getPrincipleClaimName(jwt));
     }
 
     private String getPrincipleClaimName(Jwt jwt) {
