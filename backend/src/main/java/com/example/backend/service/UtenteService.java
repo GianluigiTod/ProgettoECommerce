@@ -1,8 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.config.KeycloakConfig;
-import com.example.backend.controller.richieste.AggiornamentoPassword;
-import com.example.backend.controller.richieste.RichiestaUtente;
+import com.example.backend.config.Utils;
 import com.example.backend.exception.UtenteEsistente;
 import com.example.backend.exception.UtenteInesistente;
 import com.example.backend.model.Utente;
@@ -44,30 +43,50 @@ public class UtenteService  {
     }
 
     @Transactional(readOnly = false)
-    public void cancellaUtente(Utente u){
-        /*
-        if(!u.getUsername().equals(Utils.getUser()))
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-         *///Più che altro da sicuramente problemi con i test con postmat
-        utenteRepository.delete(u);
-        deleteKeycloak(u);
+    public boolean cancellaUtente(Long id){
+        Optional<Utente> utente = utenteRepository.findById(id);
+        if(utente.isPresent()){
+            Utente u = utente.get();
+            if(!u.getUsername().equals(Utils.getUser()))
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+            utenteRepository.delete(u);
+            deleteKeycloak(u);
+            return true;
+        }else{
+            return false;
+        }
     }
 
     @Transactional(readOnly=false)
     public Utente modificaInfo(Utente u) throws UtenteInesistente, UtenteEsistente {
-        /*
         if(!u.getUsername().equals(Utils.getUser()))
             throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-        *///Sblocca solo se ti rendi conto, dopo la parte di frontend che può andare bene
         Optional<Utente> utente = utenteRepository.findUtenteById(u.getId());//l'id dell'utente che creerò nel frontend dovrà essere uguale all'id di un utente già esistente
         if(utente.isPresent()){
             Utente utente_precedente = utente.get();
-            utente_precedente.setUsername(u.getUsername());
-            utente_precedente.setEmail(u.getEmail());
-            utente_precedente.setNome(u.getNome());
-            utente_precedente.setPassword(u.getPassword());
-            utente_precedente.setIndirizzo(u.getIndirizzo());
-            utente_precedente.setCognome(u.getCognome());
+            if(u.getUsername() != null){
+                utente_precedente.setUsername(u.getUsername());
+            }
+            if(u.getEmail() != null){
+                utente_precedente.setEmail(u.getEmail());
+            }
+            if(u.getNome() != null){
+                utente_precedente.setNome(u.getNome());
+            }
+            if(u.getPassword() != null && !utente_precedente.getPassword().equals(u.getPassword())){
+                utente_precedente.setPassword(u.getPassword());
+            }else if (!utente_precedente.getPassword().equals(u.getPassword())){
+                throw new IllegalArgumentException("La password è uguale a quella precedente.");
+            }
+            if(u.getIndirizzo() != null){
+                utente_precedente.setIndirizzo(u.getIndirizzo());
+            }
+            if(u.getCognome() != null){
+                utente_precedente.setCognome(u.getCognome());
+            }
+            if(u.getRuolo() != null){
+                utente_precedente.setRuolo(u.getRuolo());
+            }
             deleteKeycloak(utente_precedente);
             addKeyCloak(utente_precedente);//verifica se la modifica funziona, ho appena cambiato u con utente_precedente qui
             return utenteRepository.save(utente_precedente);//e qui
@@ -76,25 +95,10 @@ public class UtenteService  {
         }
     }
 
-    @Transactional(readOnly = false)
-    public Utente cambiaPassword(AggiornamentoPassword request) throws UtenteInesistente, UtenteEsistente {
-        Optional<Utente> utente = utenteRepository.findUtenteByUsername(request.getUsername());
-        if(!utente.isPresent())
-            throw new UtenteInesistente();
-        /*
-        if(!u.getUsername().equals(Utils.getUser()))
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-        *///Sblocca solo se ti rendi conto, dopo la parte di frontend che può andare bene
-        Utente u = utente.get();
-        u.setPassword(request.getN_password());
-        deleteKeycloak(u);//la cancellazione avviene per username
-        addKeyCloak(u);
-        return u;
-    }
+
 
     @Transactional(readOnly = true)
-    public Utente ottieniUtente(RichiestaUtente ric) throws UtenteInesistente {
-        String username = ric.getUsername();
+    public Utente ottieniUtente(String username) throws UtenteInesistente {
         Optional<Utente> utente = utenteRepository.findUtenteByUsername(username);
         if(!utente.isPresent()){
             throw new UtenteInesistente();
@@ -136,7 +140,7 @@ public class UtenteService  {
 
         Response response = usersResource.create(user);
         if (response.getStatus() == 201) {
-            System.out.println("User created successfully.");
+            System.out.println("Utente creato con successo.");
         } else {
             System.err.println("Failed to create user. HTTP error code: " + response.getStatus());
             System.err.println("Error message: " + response.getStatusInfo().getReasonPhrase());
@@ -144,7 +148,7 @@ public class UtenteService  {
                 System.err.println("Error details: " + response.readEntity(String.class));
 
             response.close();
-            throw new UtenteEsistente();
+            throw new IllegalStateException("Creazione dell'utente su keycloack non è andata a buon fine.");
         }
 
 
@@ -177,7 +181,6 @@ public class UtenteService  {
             System.out.println("Utente eliminato con successo: " + u.getUsername());
         } catch (Exception e) {
             System.err.println("Errore durante l'eliminazione dell'utente: " + e.getMessage());
-            // Gestisci l'errore come appropriato
         }
     }
 

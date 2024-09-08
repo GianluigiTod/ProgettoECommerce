@@ -55,10 +55,8 @@ public class CartController {
         }
     }
 
-    //CONTINUARE A CORREGGERE LE ECCEZIONI DA QUI
-
     @PutMapping("/update/{id}")
-    public ResponseEntity<CartItem> updateCartItem(@PathVariable Long id, @RequestParam int quantity) {
+    public ResponseEntity<?> updateCartItem(@PathVariable Long id, @RequestParam int quantity) {
         try {
             CartItem updatedCartItem = cartService.updateCartItem(id, quantity);
             if (updatedCartItem != null) {
@@ -66,8 +64,10 @@ public class CartController {
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login",HttpStatus.BAD_REQUEST);
+        }catch( QuantityProblem e){
+            return new ResponseEntity<>("La quantità supera l'ammontare totale di carte.", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -80,8 +80,8 @@ public class CartController {
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-        }catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch (IllegalStateException e) {
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login",HttpStatus.BAD_REQUEST);
         }
 
     }

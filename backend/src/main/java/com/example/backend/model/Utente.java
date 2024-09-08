@@ -41,17 +41,14 @@ public class Utente {
 
     // Relazione con l'entità Card
     @OneToMany(mappedBy = "venditore", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Card> cards;
 
 
     // Relazione con CartItem
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private Set<CartItem> cartItems;
+    private List<CartItem> cartItems;
 
     //Relazione con Ordine
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private Set<Ordine> listaOrdini;
+    private List<Ordine> listaOrdini;
 }

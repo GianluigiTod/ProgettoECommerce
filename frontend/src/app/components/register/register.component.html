@@ -1,0 +1,61 @@
+<div class="register-container">
+  <h2>Registrazione Utente</h2>
+
+  <!-- Visualizza il messaggio di errore -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Form di Registrazione -->
+  <form (ngSubmit)="registerUser()">
+    <div class="form-field">
+      <label for="username">Username:</label>
+      <input id="username" [(ngModel)]="newUser.username" name="username" required placeholder="Inserisci Username" />
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password:</label>
+      <div class="password-field">
+        <input id="password" [(ngModel)]="newUser.password" name="password" [type]="passwordVisible ? 'text' : 'password'" required placeholder="Inserisci Password" />
+        <button type="button" class="toggle-password" (click)="togglePassword()">
+          <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email:</label>
+      <input id="email" [(ngModel)]="newUser.email" name="email" required placeholder="Inserisci Email" />
+    </div>
+
+    <div class="form-field">
+      <label for="ruolo">Ruolo:</label>
+      <select id="ruolo" [(ngModel)]="newUser.ruolo" name="ruolo" required>
+        <option value="cliente">Cliente</option>
+        <option value="admin">Admin</option>
+        <option value="venditore">Venditore</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="nome">Nome:</label>
+      <input id="nome" [(ngModel)]="newUser.nome" name="nome" required placeholder="Inserisci Nome" />
+    </div>
+
+    <div class="form-field">
+      <label for="cognome">Cognome:</label>
+      <input id="cognome" [(ngModel)]="newUser.cognome" name="cognome" required placeholder="Inserisci Cognome" />
+    </div>
+
+    <div class="form-field">
+      <label for="indirizzo">Indirizzo:</label>
+      <input id="indirizzo" [(ngModel)]="newUser.indirizzo" name="indirizzo" required placeholder="Inserisci Indirizzo" />
+    </div>
+
+    <!-- Bottoni di Azione -->
+    <div class="button-group">
+      <button type="button" (click)="cancelRegistration()">Annulla</button>
+      <button type="submit">Registra</button>
+    </div>
+  </form>
+</div>

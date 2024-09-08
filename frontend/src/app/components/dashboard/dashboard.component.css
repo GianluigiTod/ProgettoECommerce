@@ -1,0 +1,98 @@
+/* Stile per la barra degli strumenti */
+mat-toolbar {
+  background-color: #3f51b5; /* Colore di sfondo della barra degli strumenti */
+  color: white; /* Colore del testo */
+  display: flex;
+  justify-content: space-between; /* Spazio tra gli elementi */
+  align-items: center; /* Allinea verticalmente gli elementi */
+  padding: 0 16px; /* Padding laterale */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Ombra per la barra degli strumenti */
+}
+
+/* Stile per il pulsante del menu */
+.menu-button {
+  color: white; /* Colore dell'icona */
+  margin-right: 16px; /* Spazio tra il pulsante del menu e il titolo del sito */
+}
+
+/* Icona del menu con tre strisce orizzontali */
+.menu-button mat-icon {
+  font-size: 24px; /* Dimensione dell'icona */
+}
+
+/* Stile per il nome del sito */
+.site-title {
+  font-size: 20px; /* Dimensione del testo */
+  font-weight: bold; /* Grassetto per il nome del sito */
+}
+
+/* Stile per il pulsante logout */
+.logout-button {
+  color: #f44336; /* Colore del testo del pulsante */
+  background-color: #ffffff; /* Colore di sfondo del pulsante */
+  border: 1px solid #f44336; /* Bordo del pulsante */
+  border-radius: 4px; /* Angoli arrotondati */
+  padding: 4px 8px; /* Padding interno */
+  font-size: 14px; /* Dimensione del testo */
+  display: flex;
+  align-items: center; /* Allinea verticalmente l'icona e il testo */
+}
+
+.logout-button mat-icon {
+  font-size: 16px; /* Dimensione dell'icona di logout */
+  margin-right: 4px; /* Spazio tra l'icona e il testo */
+}
+
+/* Media query per design responsivo */
+@media (max-width: 768px) {
+  mat-toolbar {
+    flex-direction: column; /* Disposizione in colonna per il contenitore */
+    align-items: flex-start; /* Allinea a sinistra */
+  }
+
+  .site-title {
+    font-size: 18px; /* Riduce la dimensione del testo sui dispositivi mobili */
+  }
+
+  .logout-button {
+    margin-top: 8px; /* Spazio tra il messaggio di benvenuto e il pulsante di logout */
+    width: 100%; /* Larghezza del pulsante su dispositivi mobili */
+    justify-content: center; /* Allinea l'icona e il testo al centro */
+  }
+}
+
+
+/* Stile per l'header della Dashboard */
+.dashboard-header {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #3f51b5;
+}
+
+.dashboard-header p {
+  margin: 5px 0;
+  color: #666;
+}
+
+
+
+/* Stile per i link rapidi */
+.quick-links {
+  padding: 20px;
+}
+
+.quick-links a {
+  display: block;
+  margin: 5px 0;
+  color: #3f51b5;
+  text-decoration: none;
+}
+
+.quick-links a:hover {
+  text-decoration: underline;
+}

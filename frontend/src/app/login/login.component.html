@@ -1,11 +1,26 @@
-<form (ngSubmit)="login()">
-  <div>
-    <label for="username">Username</label>
-    <input id="username" [(ngModel)]="username" name="username" required>
-  </div>
-  <div>
-    <label for="password">Password</label>
-    <input id="password" [(ngModel)]="password" name="password" type="password" required>
-  </div>
-  <button type="submit">Login</button>
-</form>
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <h1 class="login-title">Login</h1>
+    </mat-card-header>
+    <mat-card-content>
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Username</mat-label>
+          <input matInput name="username" ngModel required />
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="hide() ? 'password' : 'text'" name="password" ngModel required />
+          <button mat-icon-button matSuffix (click)="clickEvent($event)" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide()">
+            <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">Accedi</button>
+          <a mat-button [routerLink]="['/register']">Non hai un account? Registrati</a>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

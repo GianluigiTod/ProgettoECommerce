@@ -122,6 +122,7 @@ public class CartService {
                         throw new IllegalStateException();
 
                     if (dto.getQuantity() > card.getQuantita() || dto.getQuantity() <= 0) {
+                        System.out.println("BROOO: "+card.getQuantita()+" "+dto.getQuantity());
                         throw new QuantityProblem();
                     }
 
@@ -160,24 +161,20 @@ public class CartService {
         }
 
     @Transactional(readOnly = false)
-    public CartItem updateCartItem(Long id, int quantity) {
+    public CartItem updateCartItem(Long id, int quantity) throws QuantityProblem{
         Optional<CartItem> cartItemOptional = cartItemRepository.findById(id);
         if (cartItemOptional.isPresent()) {
             CartItem cartItem = cartItemOptional.get();
             String username = cartItem.getUtente().getUsername();
             if(!username.equals(Utils.getUser()))
-                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-
-            if(quantity <= 0){
-                throw new IllegalArgumentException("La quantità deve essere maggiore di zero.");
-            }
+                throw new IllegalStateException();
 
             Card card = cartItem.getOriginalCard();
-            if (quantity <= card.getQuantita()) {
+            if (quantity <= card.getQuantita() && quantity > 0) {
                 cartItem.setQuantity(quantity);
                 return cartItemRepository.save(cartItem);
             } else {
-                throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+                throw new QuantityProblem();
             }
         }
         return null;
@@ -190,7 +187,7 @@ public class CartService {
             CartItem cartItem = cartItemOptional.get();
             String username = cartItem.getUtente().getUsername();
             if(!username.equals(Utils.getUser()))
-                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+                throw new IllegalStateException();
 
             cartItemRepository.delete(cartItem);
             return true;

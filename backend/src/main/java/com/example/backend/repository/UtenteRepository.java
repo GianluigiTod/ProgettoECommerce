@@ -13,6 +13,7 @@ import java.util.Optional;
 @Transactional
 public interface UtenteRepository extends JpaRepository<Utente,Long> {
     Optional<Utente> findUtenteById(Long id);
+
     @Query("SELECT u FROM Utente u where u.username = :username")
     Optional<Utente> findUtenteByUsername(@Param("username") String username);
 }

@@ -10,8 +10,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
+
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
@@ -28,8 +32,20 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+                .cors(cors-> {
+                    CorsConfigurationSource source = request -> {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Modifica con l'origine corretta
+                        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                        config.setExposedHeaders(Arrays.asList("Authorization"));
+                        config.setAllowCredentials(true);
+                        return config;
+                    };
+                    cors.configurationSource(source);
+                })
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(antMatcher("/api/utente/register")).permitAll()
+                        .requestMatchers(antMatcher("/api/user/register")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))
@@ -42,12 +58,20 @@ public class SpringSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedOrigin("*");
+        configuration.addAllowedOrigin(null);
         configuration.addAllowedHeader("*");
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedMethod("OPTIONS");
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("POST");
         configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedOrigin("http://localhost:8280");
+        configuration.addAllowedHeader("Access-Control-Allow-Headers");
+        configuration.addAllowedHeader("Access-Control-Allow-Origin");
+        configuration.addAllowedHeader("Access-Control-Allow-Methods");
+        configuration.addExposedHeader("Authorization"); // Allowing specific headers to be exposed to the client
+        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
         source.registerCorsConfiguration("/**", configuration);
         return new CorsFilter(source);
     }
