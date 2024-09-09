@@ -20,7 +20,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
-import {MatDialogActions, MatDialogContent} from "@angular/material/dialog";
+import {MatDialogActions, MatDialogContent, MatDialogClose, MatDialogTitle} from "@angular/material/dialog";
+import { ListaOrdiniComponent } from './components/lista-ordini/lista-ordini.component';
+import { DettagliOrdineComponent } from './components/dettagli-ordine/dettagli-ordine.component';
+import {MatLine} from "@angular/material/core";
 
 
 @NgModule({
@@ -31,7 +34,9 @@ import {MatDialogActions, MatDialogContent} from "@angular/material/dialog";
     DashboardComponent,
     HomeComponent,
     AreaPrivataComponent,
-    MessageComponent
+    MessageComponent,
+    ListaOrdiniComponent,
+    DettagliOrdineComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +56,10 @@ import {MatDialogActions, MatDialogContent} from "@angular/material/dialog";
     MatCardContent,
     MatCardHeader,
     MatDialogContent,
-    MatDialogActions
+    MatDialogActions,
+    MatLine,
+    MatDialogClose,
+    MatDialogTitle
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -25,7 +25,6 @@ public class Ordine {
     private float prezzoTotale;
 
     @ElementCollection
-    @JsonIgnore
     private List<CardSnapshot> cards;
 
     @ManyToOne(fetch = FetchType.LAZY)

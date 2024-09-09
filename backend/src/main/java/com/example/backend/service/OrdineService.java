@@ -38,7 +38,7 @@ public class OrdineService {
     private NotificationService notificationService;
 
     @Transactional(readOnly = true)
-    public Set<Ordine> getListaOrdini(Long id){
+    public List<Ordine> getListaOrdini(Long id){
         Optional<Utente> utenteOptional = utenteRepository.findUtenteById(id);
         if(utenteOptional.isPresent()){
             Utente utente = utenteOptional.get();

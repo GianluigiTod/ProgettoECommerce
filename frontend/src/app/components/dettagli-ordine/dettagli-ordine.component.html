@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Dettagli Ordine</h2>
+
+<mat-dialog-content>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>ID Ordine: {{ ordine.id }}</mat-card-title>
+      <mat-card-title>Data Ordine: {{ ordine.dataOrdine }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR' }}</p>
+
+      <div class="card-list">
+        <h3>Lista di Carte</h3>
+        <mat-list>
+          <mat-list-item *ngFor="let card of ordine.cards">
+            <mat-icon matListIcon>credit_card</mat-icon>
+            <div mat-line>
+              <strong>Nome:</strong> {{ card.name }}
+            </div>
+            <div mat-line>
+              <strong>Venditore:</strong> {{ card.usernameVenditore }}
+            </div>
+            <div mat-line>
+              <strong>Set Code:</strong> {{ card.setCode }}
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" mat-dialog-close>Chiudi</button>
+</mat-dialog-actions>

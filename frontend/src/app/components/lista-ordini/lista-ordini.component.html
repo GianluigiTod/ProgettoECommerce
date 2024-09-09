@@ -1,0 +1,31 @@
+<div class="order-list">
+  <h2>Ordini Non Arrivati</h2>
+  <mat-card *ngFor="let ordine of ordiniNonArrivati" class="order-card">
+    <mat-card-header>
+      <mat-card-title>Ordine ID: {{ ordine.id }}</mat-card-title>
+      <mat-card-title>Data: {{ ordine.dataOrdine }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR' }}</p>
+      <div class="order-actions">
+        <button mat-raised-button color="primary" (click)="visualizzaDettagliOrdine(ordine.id)">Visualizza Dettagli</button>
+        <button mat-raised-button color="accent" (click)="confermaArrivo(ordine.id)">Arrivato</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <h2>Ordini Arrivati</h2>
+  <mat-card *ngFor="let ordine of ordiniArrivati" class="order-card">
+    <mat-card-header>
+      <mat-card-title>Ordine ID: {{ ordine.id }}</mat-card-title>
+      <mat-card-title>Data: {{ ordine.dataOrdine }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR' }}</p>
+      <div class="order-actions">
+        <button mat-raised-button color="primary" (click)="visualizzaDettagliOrdine(ordine.id)">Visualizza Dettagli</button>
+        <button mat-raised-button color="warn" (click)="eliminaOrdine(ordine.id)">Elimina Ordine</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

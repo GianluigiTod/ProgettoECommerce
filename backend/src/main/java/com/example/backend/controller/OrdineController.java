@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Set;//DA MODIFICARE IL METODO CHECKOUT CHE RICEVE UN SET DI CARTITEMS
 
 @RestController
 @RequestMapping("/api/order")
@@ -21,7 +22,7 @@ public class OrdineController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getListaOrdini(@PathVariable Long id) {
         try{
-            Set<Ordine> ordini = ordineService.getListaOrdini(id);
+            List<Ordine> ordini = ordineService.getListaOrdini(id);
             if(ordini.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

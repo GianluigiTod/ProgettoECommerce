@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   cards: any[] = [];
   orders: any[] = [];
 
-  constructor(private authService: AuthService, private http: HttpClient, private router: Router) {
+  constructor(private authService: AuthService, private http: HttpClient) {
   }
 
   private getUser(username: string, token: string): Observable<any> {

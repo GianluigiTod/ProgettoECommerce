@@ -1,0 +1,13 @@
+.order-list {
+  padding: 16px;
+}
+
+.order-card {
+  margin-bottom: 16px;
+}
+
+.order-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
