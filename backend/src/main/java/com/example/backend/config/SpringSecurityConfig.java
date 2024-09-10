@@ -46,6 +46,7 @@ public class SpringSecurityConfig {
                 })
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(antMatcher("/api/user/register")).permitAll()
+                        .requestMatchers(antMatcher("/api/images/**")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))

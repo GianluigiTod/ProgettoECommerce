@@ -1,4 +1,6 @@
 <div class="order-list">
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
   <h2>Ordini Non Arrivati</h2>
   <mat-card *ngFor="let ordine of ordiniNonArrivati" class="order-card">
     <mat-card-header>

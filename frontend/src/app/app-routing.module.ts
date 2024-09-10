@@ -8,6 +8,8 @@ import { AreaPrivataComponent } from './components/area-privata/area-privata.com
 import { authenticationGuard } from './auth/authentication.guard';
 import {ListaOrdiniComponent} from "./components/lista-ordini/lista-ordini.component";
 import {DettagliOrdineComponent} from "./components/dettagli-ordine/dettagli-ordine.component";
+import { CartComponent } from "./components/cart/cart.component";
+import {SetComponent} from "./components/set/set.component";
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [authenticationGuard], children: [
@@ -15,7 +17,9 @@ const routes: Routes = [
       { path: 'area-privata', component: AreaPrivataComponent },
       { path: 'home', component: HomeComponent },
       { path: 'lista-ordini', component: ListaOrdiniComponent},
-      { path: 'dettagli-ordine', component: DettagliOrdineComponent}
+      { path: 'dettagli-ordine', component: DettagliOrdineComponent},
+      { path: 'cart', component: CartComponent },
+      { path: 'set', component: SetComponent },
     ]},
 
   {path: 'login', component: LoginComponent},

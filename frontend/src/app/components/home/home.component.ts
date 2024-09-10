@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../service/auth.service";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Router} from "@angular/router";
 import {Observable} from "rxjs";
 import {API} from "../../constants";
+import {MessageComponent} from "../finestraMessaggi/message/message.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-home',
@@ -15,8 +16,9 @@ export class HomeComponent implements OnInit {
   cartItemsCount: number = 0;
   cards: any[] = [];
   orders: any[] = [];
+  errorMessage: string = '';
 
-  constructor(private authService: AuthService, private http: HttpClient) {
+  constructor(private authService: AuthService, private http: HttpClient, private dialog: MatDialog) {
   }
 
   private getUser(username: string, token: string): Observable<any> {
@@ -39,6 +41,20 @@ export class HomeComponent implements OnInit {
       this.cartItemsCount = user.cartItems.length;
       this.cards = user.cards;
       this.orders = user.listaOrdini.slice(0, 3);
+    }, (error)=>{
+      this.handleError(error, "Errore durante la ricerca dell'utente.");
     });
+  }
+
+  private handleError(error: any, defaultMessage: string): void {
+    console.log(error);
+    if (error.error && typeof error.error === 'string') {
+      this.errorMessage = error.error;
+      this.dialog.open(MessageComponent, { data: { message: error.error } });
+    } else if (error.error && error.error.message) {
+      this.errorMessage = error.error.message;
+    } else {
+      this.errorMessage = defaultMessage;
+    }
   }
 }

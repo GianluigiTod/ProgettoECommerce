@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;//DA MODIFICARE IL METODO CHECKOUT CHE RICEVE UN SET DI CARTITEMS
 
 @RestController
 @RequestMapping("/api/order")
@@ -35,7 +34,7 @@ public class OrdineController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> addOrdine(@RequestBody Set<Long> cartItemsId){
+    public ResponseEntity<?> addOrdine(@RequestBody List<Long> cartItemsId){
         try{
             Ordine ordine = ordineService.checkout(cartItemsId);
             return new ResponseEntity<>(ordine, HttpStatus.CREATED);

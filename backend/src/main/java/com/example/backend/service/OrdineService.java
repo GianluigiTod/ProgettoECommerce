@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import java.util.*;
-import java.util.Set;
 
 @Service
 public class OrdineService {
@@ -88,8 +87,8 @@ public class OrdineService {
     }
 
     @Transactional
-    public Ordine checkout(Set<Long> cartItemsId) throws QuantityProblem{
-        Set<CartItem> cartItems = new HashSet<>();
+    public Ordine checkout(List<Long> cartItemsId) throws QuantityProblem{
+        List<CartItem> cartItems = new ArrayList<>();
         float prezzoTotale = 0.0f;
         List<CardSnapshot> listaSnapshot = new ArrayList<>();
         for (Long id : cartItemsId) {
@@ -128,7 +127,7 @@ public class OrdineService {
                     cardRepository.save(card);
                 }else{
                     // Recupera tutti i CartItem associati alla carta
-                    Set<CartItem> carrello = cartItemRepository.findByOriginalCardId(card.getId());
+                    List<CartItem> carrello = cartItemRepository.findByOriginalCardId(card.getId());
 
                     // Notifica agli utenti che hanno la carta nel carrello
                     for (CartItem item : carrello) {

@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -211,7 +212,7 @@ public class CardService {
                 throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
 
             // Recupera tutti i CartItem associati alla carta
-            Set<CartItem> cartItems = cartItemRepository.findByOriginalCardId(id);
+            List<CartItem> cartItems = cartItemRepository.findByOriginalCardId(id);
 
             // Notifica agli utenti che hanno la carta nel carrello
             for (CartItem cartItem : cartItems) {

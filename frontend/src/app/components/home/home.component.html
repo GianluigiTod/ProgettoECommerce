@@ -1,6 +1,8 @@
 <!-- Contenuto della Dashboard -->
 <div class="content">
 
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
   <div class="section">
     <h3>Carrello</h3>
     <p>Numero di elementi nel carrello: {{ cartItemsCount }}</p>

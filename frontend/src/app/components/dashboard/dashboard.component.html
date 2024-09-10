@@ -3,16 +3,16 @@
     <mat-nav-list>
       <!-- Altri elementi del menu -->
       <mat-list-item routerLink="/home" (click)="sidenav.close()">
-        <mat-icon matListIcon>home</mat-icon>
         <h3 matLine>Home</h3>
       </mat-list-item>
       <mat-list-item routerLink="/area-privata" (click)="sidenav.close()">
-        <mat-icon matListIcon>person</mat-icon>
         <h3 matLine>Area Privata</h3>
       </mat-list-item>
       <mat-list-item routerLink="/lista-ordini" (click)="sidenav.close()">
-        <mat-icon matListIcon>list</mat-icon>
         <h3 matLine>Lista Ordini</h3>
+      </mat-list-item>
+      <mat-list-item routerLink="/set" (click)="sidenav.close()">
+        <h3 matLine>Set</h3>
       </mat-list-item>
     </mat-nav-list>
   </mat-sidenav>
@@ -32,6 +32,11 @@
 
       <!-- Messaggio di benvenuto -->
       <span>Benvenuto</span>
+
+      <!-- Pulsante del carrello -->
+      <button mat-icon-button aria-label="Carrello" routerLink="/cart">
+        <mat-icon>shopping_cart</mat-icon>
+      </button>
 
       <!-- Pulsante logout -->
       <button mat-button class="logout-button" (click)="onClick()">

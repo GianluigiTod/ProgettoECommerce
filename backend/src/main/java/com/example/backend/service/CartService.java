@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class CartService {
                 throw new IllegalStateException();
             }
 
-            Set<CartItem> cartItems = cartItemRepository.findByUtenteUsername(username);
+            List<CartItem> cartItems = cartItemRepository.findByUtenteUsername(username);
             boolean hasChanges = false;
             StringBuilder notificationMessage = new StringBuilder("Le seguenti modifiche sono state rilevate nel tuo carrello:\n");
 
@@ -170,6 +171,7 @@ public class CartService {
                 throw new IllegalStateException();
 
             Card card = cartItem.getOriginalCard();
+            System.out.println("Quantità item: "+quantity+", quantità carta: "+card.getQuantita());
             if (quantity <= card.getQuantita() && quantity > 0) {
                 cartItem.setQuantity(quantity);
                 return cartItemRepository.save(cartItem);

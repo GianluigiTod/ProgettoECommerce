@@ -9,7 +9,9 @@ import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 export class DettagliOrdineComponent {
   ordine: any;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {
-    this.ordine = data.ordine;
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
+
+  ngOnInit(): void {
+    this.ordine = this.data.ordine;
   }
 }

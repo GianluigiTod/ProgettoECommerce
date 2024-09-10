@@ -32,7 +32,6 @@ public class CartItem {
 
     // Aggiunta di una copia della carta "congelata"
     @Embedded
-    @JsonIgnore
     private CardSnapshot cardSnapshot;
 
 

@@ -1,0 +1,67 @@
+<div class="cart-container">
+  <h2>Il Tuo Carrello</h2>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Schermata di conferma acquisto -->
+  <div *ngIf="showConfirmation; else cartContent" class="confirmation-overlay">
+    <div class="confirmation-dialog">
+      <h3>Conferma Acquisto</h3>
+      <div *ngFor="let item of cartItems">
+        <p><strong>{{ item.cardSnapshot.name }}</strong></p>
+        <p>Prezzo: {{ item.prezzo | currency:'EUR' }}</p>
+        <p>Quantità: {{ item.quantity }}</p>
+        <hr />
+      </div>
+      <button mat-raised-button color="primary" (click)="proceedToCheckout()">
+        Checkout
+      </button>
+      <button mat-raised-button color="warn" (click)="cancelCheckout()">
+        Annulla
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenuto del carrello -->
+  <ng-template #cartContent>
+    <div class="cart-content">
+      <div class="cart-items">
+        <div *ngIf="cartItems.length > 0; else emptyCart">
+          <div class="cart-item" *ngFor="let item of cartItems">
+            <div class="item-info">
+              <p><strong>{{ item.cardSnapshot.name }}</strong></p>
+              <p>Prezzo: {{ item.prezzo | currency:'EUR' }}</p>
+            </div>
+
+            <div class="item-quantity">
+              <mat-form-field appearance="outline">
+                <input matInput type="number" [(ngModel)]="item.quantity" min="1" />
+              </mat-form-field>
+              <button mat-icon-button (click)="updateCartItem(item.id, item.quantity)">
+                <mat-icon>autorenew</mat-icon>
+              </button>
+            </div>
+
+            <div class="item-actions">
+              <button mat-raised-button color="warn" (click)="deleteCartItem(item.id)">
+                Rimuovi
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #emptyCart>
+          <p>Il carrello è vuoto.</p>
+        </ng-template>
+      </div>
+
+      <div class="cart-summary">
+        <h3>Riepilogo</h3>
+        <p>Totale: {{ total | currency:'EUR' }}</p>
+        <button mat-raised-button color="primary" (click)="showConfirmationDialog()">
+          Acquista
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

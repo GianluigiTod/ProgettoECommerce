@@ -1,0 +1,151 @@
+.set-container {
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.edit-dialog {
+  background: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #ccc;
+  margin-top: 20px;
+}
+
+.edit-actions {
+  margin-top: 10px;
+}
+
+.create-set-section {
+  margin-bottom: 20px;
+}
+
+/* Stile per la sezione di creazione del set */
+.create-set-container {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin: 16px 0;
+}
+
+.create-set-container h3 {
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.create-set-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.open-create-button {
+  margin-bottom: 16px;
+}
+
+.create-set-actions button {
+  margin-left: 8px;
+}
+
+/* Nascondi la sezione di creazione set per i non-admin */
+.admin-only {
+  display: none;
+}
+
+.admin-only.visible {
+  display: block;
+}
+
+/* Stile per il bottone "Crea Set" */
+.create-set-button {
+  margin: 16px 0;
+}
+
+.create-set-button mat-raised-button {
+  margin: 8px;
+}
+
+.create-set-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.file-input-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 24px;
+}
+
+input[type="file"] {
+  display: none; /* Nascondi l'input di tipo file */
+}
+
+.file-label {
+  display: inline-block;
+  padding: 10px 16px; /* Simile ai pulsanti Angular Material */
+  cursor: pointer;
+  background-color: #3f51b5; /* Colore simile ai pulsanti 'primary' */
+  color: #ffffff; /* Testo bianco come nei pulsanti 'primary' */
+  border-radius: 4px;
+  border: none;
+  margin-top: 8px;
+  margin-right: 16px; /* Spostamento verso sinistra */
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500; /* Simile ai pulsanti Angular Material */
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+  0 3px 1px -2px rgba(0, 0, 0, 0.2),
+  0 1px 5px 0 rgba(0, 0, 0, 0.12); /* Simile all'ombra dei pulsanti */
+  transition: background-color 0.3s;
+}
+
+.file-label:hover {
+  background-color: #303f9f; /* Colore di hover simile */
+}
+
+
+
+.create-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.set-image {
+  width: 100px; /* Modifica la larghezza come necessario */
+  height: auto;
+  object-fit: cover; /* Mantiene le proporzioni e taglia l'immagine se necessario */
+}
+
+
+
+/* Messaggio di errore */
+.error-message {
+  color: #d9534f;
+  background-color: #f2dede;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}

@@ -24,6 +24,8 @@ import {MatDialogActions, MatDialogContent, MatDialogClose, MatDialogTitle} from
 import { ListaOrdiniComponent } from './components/lista-ordini/lista-ordini.component';
 import { DettagliOrdineComponent } from './components/dettagli-ordine/dettagli-ordine.component';
 import {MatLine} from "@angular/material/core";
+import { CartComponent } from './components/cart/cart.component';
+import { SetComponent } from './components/set/set.component';
 
 
 @NgModule({
@@ -36,7 +38,9 @@ import {MatLine} from "@angular/material/core";
     AreaPrivataComponent,
     MessageComponent,
     ListaOrdiniComponent,
-    DettagliOrdineComponent
+    DettagliOrdineComponent,
+    CartComponent,
+    SetComponent
   ],
   imports: [
     BrowserModule,

@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -26,7 +26,7 @@ public class CartController {
     public ResponseEntity<?> getCartItemsByUsername(@PathVariable Long id) {
         try{
             CartItemsResponse response = cartService.getCartItemsByUser(id);
-            Set<CartItem> cartItems = response.getItems();
+            List<CartItem> cartItems = response.getItems();
             if (cartItems.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }

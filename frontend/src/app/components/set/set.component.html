@@ -1,0 +1,102 @@
+<div class="set-container">
+  <h2>Lista dei Set</h2>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+
+  <!-- Bottone "Crea Set" visibile solo se l'utente è un admin -->
+  <div class="open-create-button">
+    <button *ngIf="ruolo === 'admin'" mat-raised-button color="primary" (click)="toggleCreateSet()">
+    Crea Set
+    </button>
+  </div>
+
+
+  <!-- Sezione di creazione del set, visibile solo quando "isCreating" è true -->
+  <div *ngIf="isCreating" class="create-set-section">
+    <h3>Crea Nuovo Set</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Codice Set</mat-label>
+      <input matInput [(ngModel)]="newSetCode" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nome Set</mat-label>
+      <input matInput [(ngModel)]="newSetName" />
+    </mat-form-field>
+
+    <div class="file-input-container">
+      <input type="file" (change)="onFileSelected($event)" id="fileInputCreate" />
+      <label for="fileInputCreate" class="file-label">Scegli un'immagine (opzionale)</label>
+    </div>
+
+
+    <div class="create-actions">
+      <button mat-raised-button color="primary" (click)="createSet()">
+        Crea
+      </button>
+      <button mat-raised-button color="warn" (click)="cancelCreate()">
+        Annulla
+      </button>
+    </div>
+  </div>
+
+  <table *ngIf="setList.length > 0; else noSets">
+    <thead>
+    <tr>
+      <th>Codice Set</th>
+      <th>Nome Set</th>
+      <th>Immagine</th>
+      <th>Azioni</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let set of setList">
+      <td>{{ set.setCode }}</td>
+      <td>{{ set.setName }}</td>
+      <td>
+        <img *ngIf="imageUrls[set.id]" [src]="imageUrls[set.id]" alt="Set Image" class="set-image"/>
+      </td>
+      <td>
+        <!-- Mostra i pulsanti solo se il ruolo è "admin" -->
+        <div *ngIf="ruolo === 'admin'">
+          <button mat-raised-button color="primary" (click)="editSet(set)">
+            Modifica
+          </button>
+          <button mat-raised-button color="warn" (click)="deleteSet(set.id)">
+            Elimina
+          </button>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <ng-template #noSets>
+    <p>Non ci sono set disponibili.</p>
+  </ng-template>
+
+  <div *ngIf="isEditing" class="edit-dialog">
+    <h3>Modifica Set</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Codice Set</mat-label>
+      <input matInput [(ngModel)]="updatedSetCode" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nome Set</mat-label>
+      <input matInput [(ngModel)]="updatedSetName" />
+    </mat-form-field>
+
+    <div class="file-input-container">
+      <input type="file" (change)="onFileSelected($event)" id="fileInputUpdate" />
+      <label for="fileInputUpdate" class="file-label">Scegli un'immagine (opzionale)</label>
+    </div>
+    <div class="edit-actions">
+      <button mat-raised-button color="primary" (click)="updateSet()">
+        Conferma
+      </button>
+      <button mat-raised-button color="warn" (click)="cancelEdit()">
+        Annulla
+      </button>
+    </div>
+  </div>
+</div>
