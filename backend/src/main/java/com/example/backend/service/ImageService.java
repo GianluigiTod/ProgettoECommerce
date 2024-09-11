@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.exception.ImageNotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -63,7 +64,7 @@ public class ImageService {
         return fileName;
     }
 
-    public void eliminaImmagine(String filename) {
+    public void eliminaImmagine(String filename) throws  ImageNotFound{
         File file = Paths.get(imageUploadDir, filename).toFile();
         boolean deleted;
         if (file.exists()) {
@@ -76,11 +77,11 @@ public class ImageService {
                 System.out.println("L'immagine mancante non è stata eliminata");
             }
         } else {
-            //throw new RuntimeException("Image not found: " + filename);
+            throw new ImageNotFound();
         }
     }
 
-    public String aggiornaImmagine(String filename, MultipartFile file) throws IOException {
+    public String aggiornaImmagine(String filename, MultipartFile file) throws IOException, ImageNotFound {
         eliminaImmagine(filename);
         return creaImmagine(file);
     }

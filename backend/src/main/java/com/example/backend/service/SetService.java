@@ -1,6 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.controller.richieste.RichiestaSet;
+import com.example.backend.exception.ImageNotFound;
 import com.example.backend.exception.SetEsistente;
 import com.example.backend.exception.SetInesistente;
 import com.example.backend.model.Set;
@@ -86,7 +86,7 @@ public class SetService {
     }
 
     @Transactional(readOnly = false)
-    public void aggiornaImmagineSet(MultipartFile file, Long id) throws SetInesistente, IOException {
+    public void aggiornaImmagineSet(MultipartFile file, Long id) throws SetInesistente, IOException, ImageNotFound {
         Optional<Set> setOptional = setRepository.findSetById(id);
         if(setOptional.isPresent()){
             Set s_prec= setOptional.get();
@@ -98,7 +98,7 @@ public class SetService {
     }
 
     @Transactional(readOnly = false)
-    public void eliminaSet(Long id) throws SetInesistente{
+    public void eliminaSet(Long id) throws SetInesistente, ImageNotFound {
         Optional<Set> setOptional = setRepository.findSetById(id);
         if(!setOptional.isPresent()){
             throw new SetInesistente();

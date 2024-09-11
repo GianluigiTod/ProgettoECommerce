@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 
+import com.example.backend.exception.ImageNotFound;
 import com.example.backend.exception.SetEsistente;
 import com.example.backend.exception.SetInesistente;
 import com.example.backend.model.Set;
@@ -63,7 +64,7 @@ public class SetController {
             Set s = setService.createSetWithImage(setCode, setName, null);
             return new ResponseEntity<>(s, HttpStatus.CREATED);
         }catch(IOException ioe){
-            return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine", HttpStatus.INTERNAL_SERVER_ERROR);
         }catch(SetEsistente e){
             return new ResponseEntity<>("Il set "+setCode+" già esiste.", HttpStatus.BAD_REQUEST);
         }
@@ -88,6 +89,8 @@ public class SetController {
             return new ResponseEntity<>("Cancellazione avvenuta con successo.", HttpStatus.OK);
         }catch (SetInesistente e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(ImageNotFound e){
+            return new ResponseEntity<>("L'immagine relativa al set non è stata trovata.", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -110,11 +113,13 @@ public class SetController {
     public ResponseEntity<String> updateSetImage(@RequestPart MultipartFile file, @PathVariable Long id) {
         try{
             setService.aggiornaImmagineSet(file, id);
-            return new ResponseEntity<>("Aggiornamento avvenuto con successo BRAA",HttpStatus.OK);
+            return new ResponseEntity<>("Aggiornamento avvenuto con successo.",HttpStatus.OK);
         }catch(SetInesistente e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }catch(IOException ioe){
-            return new ResponseEntity<>("Si è verificato un problema durante l'aggiornamento dell'immagine", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Si è verificato un problema durante l'aggiornamento dell'immagine", HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(ImageNotFound e){
+            return new ResponseEntity<>("L'immagine relativa al set non è stata trovata.", HttpStatus.NOT_FOUND);
         }
     }
 

@@ -20,29 +20,30 @@ public class Card {
     private String name;
     @Column(nullable = false)
     private float prezzo;
-    @Column(nullable = false, name="venditore_username")
+    @Column(name="venditore_username")
     private String usernameVenditore;
 
     private String manaCost;
     private String type;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)//Verifica se la rarità è effettivamente obbligatoria nel DB
     private Rarity rarity;
 
     @Column(length = 1023)
     private String text;
 
-    private Integer power;
-    private Integer toughness;
+    private int power;
+    private int toughness;
 
-    @Column(nullable = false, name="set_code")
+    @Column(name="set_code")
     private String setCode;
 
     @Column
     private String imagePath;
 
     @Column(nullable = false)
-    private int quantita;
+    private int quantity;
 
     @Version
     @JsonIgnore
@@ -51,14 +52,14 @@ public class Card {
     // Associazione con Utente usando il campo username_venditore
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "venditore_username", referencedColumnName = "username", insertable = false, updatable = false)
+    @JoinColumn(name = "venditore_id", nullable = false)
     private Utente venditore;
 
 
     // Associazione con Set usando il campo setCode
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "set_code", referencedColumnName = "setCode", insertable = false, updatable = false)
+    @JoinColumn(name = "set_id", nullable = false)
     private com.example.backend.model.Set set;
 
 

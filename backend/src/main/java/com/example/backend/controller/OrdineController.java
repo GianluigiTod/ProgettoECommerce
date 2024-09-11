@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.exception.ImageNotFound;
 import com.example.backend.exception.QuantityProblem;
 import com.example.backend.model.Ordine;
 import com.example.backend.service.OrdineService;
@@ -44,6 +45,8 @@ public class OrdineController {
             return new ResponseEntity<>("C'è un problema con gli elementi del carrello.",HttpStatus.BAD_REQUEST);
         }catch(QuantityProblem e){
             return new ResponseEntity<>("La quantità di un cartItem non può essere più grande di quella della carta a cui è legato.",HttpStatus.BAD_REQUEST);
+        }catch(ImageNotFound e){
+            return new ResponseEntity<>("L'immagine relativa a una delle carte che hai acquistato non è stata trovata", HttpStatus.NOT_FOUND);
         }
     }
 

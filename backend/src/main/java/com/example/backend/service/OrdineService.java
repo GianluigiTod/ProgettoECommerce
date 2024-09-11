@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.config.Utils;
+import com.example.backend.exception.ImageNotFound;
 import com.example.backend.exception.QuantityProblem;
 import com.example.backend.model.*;
 import com.example.backend.repository.CardRepository;
@@ -87,7 +88,7 @@ public class OrdineService {
     }
 
     @Transactional
-    public Ordine checkout(List<Long> cartItemsId) throws QuantityProblem{
+    public Ordine checkout(List<Long> cartItemsId) throws QuantityProblem, ImageNotFound {
         List<CartItem> cartItems = new ArrayList<>();
         float prezzoTotale = 0.0f;
         List<CardSnapshot> listaSnapshot = new ArrayList<>();
@@ -112,10 +113,10 @@ public class OrdineService {
             listaSnapshot.add(c.getCardSnapshot());
 
             //Calcolo del prezzo totale
-            if(c.getQuantity() <= card.getQuantita()){
+            if(c.getQuantity() <= card.getQuantity()){
                 prezzoTotale += c.getPrezzo() * c.getQuantity();
 
-                int newQuantity = card.getQuantita() - c.getQuantity();
+                int newQuantity = card.getQuantity() - c.getQuantity();
 
                 cartItemRepository.delete(c);
 
@@ -123,7 +124,7 @@ public class OrdineService {
 
 
                 if(newQuantity != 0){
-                    card.setQuantita(newQuantity);
+                    card.setQuantity(newQuantity);
                     cardRepository.save(card);
                 }else{
                     // Recupera tutti i CartItem associati alla carta

@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CartService {
@@ -61,7 +60,7 @@ public class CartService {
                     updateCardSnapshot(cartItem, cartItem.getOriginalCard());
 
                     //Aggiorna la quantità del cartItem
-                    cartItem.setQuantity(cartItem.getOriginalCard().getQuantita());
+                    cartItem.setQuantity(cartItem.getOriginalCard().getQuantity());
                     cartItemRepository.save(cartItem);
                 }
             }
@@ -99,7 +98,7 @@ public class CartService {
                 !originalCard.getUsernameVenditore().equals(cardSnapshot.getUsernameVenditore());
 
         //Per verificare che la quantità sia ancora sufficiente
-        boolean quantityChanges = cartItem.getQuantity() > originalCard.getQuantita();
+        boolean quantityChanges = cartItem.getQuantity() > originalCard.getQuantity();
 
         verifiche.put("changes", changes);
         verifiche.put("quantityChanges", quantityChanges);
@@ -122,8 +121,8 @@ public class CartService {
                     if(!utente.getUsername().equals(Utils.getUser()))
                         throw new IllegalStateException();
 
-                    if (dto.getQuantity() > card.getQuantita() || dto.getQuantity() <= 0) {
-                        System.out.println("BROOO: "+card.getQuantita()+" "+dto.getQuantity());
+                    if (dto.getQuantity() > card.getQuantity() || dto.getQuantity() <= 0) {
+                        System.out.println("BROOO: "+card.getQuantity()+" "+dto.getQuantity());
                         throw new QuantityProblem();
                     }
 
@@ -139,7 +138,7 @@ public class CartService {
                     Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
                     if (existingCartItem.isPresent()) {
                         CartItem item = existingCartItem.get();
-                        if (dto.getQuantity() + item.getQuantity() > card.getQuantita()) {
+                        if (dto.getQuantity() + item.getQuantity() > card.getQuantity()) {
                             throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
                         }
                         item.setQuantity(item.getQuantity() + dto.getQuantity());
@@ -171,8 +170,8 @@ public class CartService {
                 throw new IllegalStateException();
 
             Card card = cartItem.getOriginalCard();
-            System.out.println("Quantità item: "+quantity+", quantità carta: "+card.getQuantita());
-            if (quantity <= card.getQuantita() && quantity > 0) {
+            System.out.println("Quantità item: "+quantity+", quantità carta: "+card.getQuantity());
+            if (quantity <= card.getQuantity() && quantity > 0) {
                 cartItem.setQuantity(quantity);
                 return cartItemRepository.save(cartItem);
             } else {

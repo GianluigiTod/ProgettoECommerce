@@ -1,10 +1,10 @@
 package com.example.backend.controller;
 
 
-import com.example.backend.exception.CartaInesistente;
+import com.example.backend.dto.CardDTO;
+import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.service.CardService;
-import com.example.backend.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -25,13 +25,18 @@ public class CardController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Card> getCardById(@PathVariable Long id) throws CartaInesistente {
-        return ResponseEntity.ok(cardService.getCardById(id));
+    public ResponseEntity<?> getCardById(@PathVariable Long id){
+        try{
+            Card c = cardService.getCardById(id);
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }catch(CartaInesistente e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 
     @GetMapping("/all")
-    public Page<Card> getAllCards(
+    public ResponseEntity<Page<Card>> getAllCards(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy,
@@ -41,29 +46,41 @@ public class CardController {
         int pageSize = size.orElse(10);
         String sortField = sortBy.orElse("name");//ho sostituito id con name, perchè altrimenti mostriamo per prime le carte più vecchie(di default)
         String sortDirection = direction.orElse("asc");
-        return cardService.getAllCards(pageNumber, pageSize, sortField, sortDirection);
+        Page<Card> p = cardService.getAllCards(pageNumber, pageSize, sortField, sortDirection);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
-    @GetMapping("/set/{setCode}")
-    public Page<Card> getCardsBySetCode(
-            @PathVariable String setCode,
+    @GetMapping("/set/{setId}")
+    public ResponseEntity<?> getCardsBySetCode(
+            @PathVariable Long setId,
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size
     ) {
-        int pageNumber = page.orElse(0);
-        int pageSize = size.orElse(10);
-        return cardService.getCardsBySetCode(setCode, pageNumber, pageSize);
+        try{
+            int pageNumber = page.orElse(0);
+            int pageSize = size.orElse(10);
+            Page<Card> p = cardService.getCardsBySetId(setId, pageNumber, pageSize);
+            return new ResponseEntity<>(p, HttpStatus.OK);
+        }catch(SetInesistente e){
+            return new ResponseEntity<>("Il set "+setId+" non esiste.", HttpStatus.BAD_REQUEST);
+        }
+
     }
 
-    @GetMapping("/seller/{username}")
-    public Page<Card> getCardsBySeller(
-            @PathVariable String username,
+    @GetMapping("/seller/{userId}")
+    public ResponseEntity<?> getCardsBySeller(
+            @PathVariable Long userId,
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size
     ) {
-        int pageNumber = page.orElse(0);
-        int pageSize = size.orElse(10);
-        return cardService.getCardsBySeller(username, pageNumber, pageSize);
+        try{
+            int pageNumber = page.orElse(0);
+            int pageSize = size.orElse(10);
+            Page<Card> p = cardService.getCardsBySellerId(userId, pageNumber, pageSize);
+            return new ResponseEntity<>(p, HttpStatus.OK);
+        }catch(UtenteInesistente e){
+            return new ResponseEntity<>("L'utente "+userId+" non esiste.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/search")
@@ -77,55 +94,76 @@ public class CardController {
         return cardService.searchCardsByName(name, pageNumber, pageSize);
     }
 
-    /*
-    @GetMapping("/price")
-    public Page<Card> getAllCardsOrderedByPrice(
-            @RequestParam String direction,
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size
-    ) {
-        int pageNumber = page.orElse(0);
-        int pageSize = size.orElse(10);
-        return cardService.getAllCardsOrderedByPrice(direction, pageNumber, pageSize);
-    }
-
-    @GetMapping("/rarity")
-    public Page<Card> getAllCardsOrderedByRarity(
-            @RequestParam String direction,
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size
-    ) {
-        int pageNumber = page.orElse(0);
-        int pageSize = size.orElse(10);
-        return cardService.getAllCardsOrderedByRarity(direction, pageNumber, pageSize);
-    }
-
-     */
-
 
     @PostMapping("/create")//la post va fatta diversa, bisogna guardare il set, per via dell'immagine
     @PreAuthorize("hasRole('venditore')")
-    public ResponseEntity<Card> createCard(@RequestBody Card card) {
-        Card savedCard = cardService.createCard(card);
-        return new ResponseEntity<>(savedCard, HttpStatus.CREATED);
+    public ResponseEntity<?> createCard(@RequestBody CardDTO cardDTO) {
+        try{
+            Card savedCard = cardService.createCard(cardDTO);
+            return new ResponseEntity<>(savedCard, HttpStatus.CREATED);
+        }catch(UtenteInesistente e){
+            return new ResponseEntity<>("L'utente "+cardDTO.getVenditoreId()+" non esiste.", HttpStatus.NOT_FOUND);
+        }catch(IllegalStateException e){
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.", HttpStatus.BAD_REQUEST);
+        }catch(SetInesistente e){
+            return new ResponseEntity<>("Il set "+cardDTO.getSetId()+" non esiste.", HttpStatus.NOT_FOUND);
+        }catch(PriceProblem e){
+            return new ResponseEntity<>("Il prezzo deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+        }catch(QuantityProblem e){
+            return new ResponseEntity<>("La quantità deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+        }catch(IOException ioe){
+            return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
-    @PutMapping("/setImage/{id}")
+    @PutMapping("/{id}/setImage")
     @PreAuthorize("hasRole('venditore')")
-    public ResponseEntity<?> addImage(@RequestParam MultipartFile file, @PathVariable Long id) throws CartaInesistente, IOException {
-        return cardService.setCardImage(file, id);
+    public ResponseEntity<?> addImage(@RequestParam MultipartFile file, @PathVariable Long id)  {
+        try{
+            Card c = cardService.setCardImage(file, id);
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }catch(CartaInesistente e){
+            return new ResponseEntity<>("La carta "+id+" non esiste.", HttpStatus.NOT_FOUND);
+        }catch(IOException e){
+            return new ResponseEntity<>("Si è verificato un problema durante l'aggiornamento dell'immagine.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(ImageNotFound e){
+            return new ResponseEntity<>("L'immagine da eliminare non è stata trovata", HttpStatus.NOT_FOUND);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/update")
     @PreAuthorize("hasRole('venditore')")
-    public ResponseEntity<Card> updateCard(@RequestBody Card card) throws CartaInesistente, IOException {
-        return ResponseEntity.ok(cardService.aggiornaCarta(card));
+    public ResponseEntity<?> updateCard(@RequestBody Card card) {
+        try{
+            Card c = cardService.aggiornaCarta(card);
+            return new ResponseEntity<>(c, HttpStatus.OK);
+        }catch(CartaInesistente e){
+            return new ResponseEntity<>("La carta "+card.getId()+" non esiste.", HttpStatus.NOT_FOUND);
+        }catch(IllegalStateException e){
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.", HttpStatus.BAD_REQUEST);
+        }catch(PriceProblem e){
+            return new ResponseEntity<>("Il prezzo deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+        }catch(QuantityProblem e){
+            return new ResponseEntity<>("La quantità deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+        }
     }
 
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('venditore')")
-    public ResponseEntity deleteCard(@PathVariable Long id) throws CartaInesistente {
-        return ResponseEntity.ok(cardService.deleteCard(id));
+    public ResponseEntity<String> deleteCard(@PathVariable Long id)  {
+        try{
+            cardService.deleteCard(id);
+            return new ResponseEntity<>("Cancellazione effettuata con successo", HttpStatus.OK);
+        }catch(CartaInesistente e){
+            return new ResponseEntity<>("La carta "+id+" non esiste.", HttpStatus.NOT_FOUND);
+        }catch(IllegalStateException e){
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.", HttpStatus.BAD_REQUEST);
+        }catch(ImageNotFound e){
+            return new ResponseEntity<>("L'immagine relativa alla carta non è stata trovata.", HttpStatus.NOT_FOUND);
+        }
     }
 }
