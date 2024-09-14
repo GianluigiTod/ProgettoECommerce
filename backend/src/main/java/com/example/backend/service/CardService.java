@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.config.Utils;
 import com.example.backend.dto.CardDTO;
+import com.example.backend.dto.CardPageResponse;
 import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.model.CartItem;
@@ -12,6 +13,7 @@ import com.example.backend.repository.CartItemRepository;
 import com.example.backend.repository.SetRepository;
 import com.example.backend.repository.UtenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +47,9 @@ public class CardService {
     @Autowired
     private UtenteRepository utenteRepository;
 
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
+
 
     @Transactional(readOnly = true)
     public Card getCardById(Long id) throws CartaInesistente {
@@ -57,33 +62,37 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Card> getAllCards(int page, int size, String sortBy, String direction) {
+    public CardPageResponse getAllCards(int page, int size, String sortBy, String direction) {
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(direction), sortBy);
-        return cardRepository.findAll(pageable);
+        Page<Card> pagina = cardRepository.findAll(pageable);
+        return new CardPageResponse(pagina);
     }
 
     @Transactional(readOnly = true)
-    public Page<Card> getCardsBySetId(Long setId, int page, int size) throws SetInesistente{
+    public CardPageResponse getCardsBySetId(Long setId, int page, int size) throws SetInesistente{
         if(!setRepository.findSetById(setId).isPresent()){
             throw new SetInesistente();
         }
         Pageable pageable = PageRequest.of(page, size);
-        return cardRepository.findBySetId(setId, pageable);
+        Page<Card> pagina = cardRepository.findBySetId(setId, pageable);
+        return new CardPageResponse(pagina);
     }
 
     @Transactional(readOnly = true)
-    public Page<Card> getCardsBySellerId(Long venditoreId, int page, int size) throws UtenteInesistente{
+    public CardPageResponse getCardsBySellerId(Long venditoreId, int page, int size) throws UtenteInesistente{
         if(!utenteRepository.findUtenteById(venditoreId).isPresent()){
             throw new UtenteInesistente();
         }
         Pageable pageable = PageRequest.of(page, size);
-        return cardRepository.findByVenditoreId(venditoreId, pageable);
+        Page<Card> pagina = cardRepository.findByVenditoreId(venditoreId, pageable);
+        return new CardPageResponse(pagina);
     }
 
     @Transactional(readOnly = true)
-    public Page<Card> searchCardsByName(String name, int page, int size) {
+    public CardPageResponse searchCardsByName(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return cardRepository.findByNameContaining(name, pageable);
+        Page<Card> pagina = cardRepository.findByNameContaining(name, pageable);
+        return new CardPageResponse(pagina);
     }
 
     @Transactional(readOnly = false)
@@ -131,6 +140,16 @@ public class CardService {
         return cardRepository.save(card);
     }
 
+    @Transactional(readOnly = true)
+    public String getImageUrl(Long id) throws CartaInesistente{
+        Optional<Card> optionalCard = cardRepository.findCardById(id);
+        if(!optionalCard.isPresent()){
+            throw new CartaInesistente();
+        }
+        Card c = optionalCard.get();
+        return imageBaseUrl + c.getImagePath();
+    }
+
     @Transactional(readOnly = false)
     public Card setCardImage(MultipartFile image, Long id) throws CartaInesistente, IOException, ImageNotFound {
         Optional<Card> card = cardRepository.findById(id);
@@ -146,7 +165,7 @@ public class CardService {
         return c;
     }
 
-    //CORREGGERE
+
     @Transactional(readOnly = false)
     public Card aggiornaCarta(Card c) throws CartaInesistente, PriceProblem, QuantityProblem {
         Optional<Card> optionalCard = cardRepository.findById(c.getId());

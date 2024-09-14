@@ -55,22 +55,10 @@ export class ListaOrdiniComponent implements OnInit {
         this.ordiniNonArrivati = this.orders.filter(ordine => !ordine.arrivato);
         this.ordiniArrivati = this.orders.filter(ordine => ordine.arrivato);
       }, error => {
-        if (error.error && typeof error.error === 'string') {
-          this.errorMessage = error.error;
-        } else if (error.error && error.error.message) {
-          this.errorMessage = error.error.message;
-        } else {
-          this.errorMessage = 'Si è verificato un errore durante il recupero degli ordini. Riprova.';
-        }
+        this.handleError(error, "Si è verificato un errore durante il recupero degli ordini. Riprova");
       });
     }, error => {
-      if (error.error && typeof error.error === 'string') {
-        this.errorMessage = error.error;
-      } else if (error.error && error.error.message) {
-        this.errorMessage = error.error.message;
-      } else {
-        this.errorMessage = 'Si è verificato un errore durante il recupero dell\'utente. Riprova.';
-      }
+      this.handleError(error, "Si è verificato un errore durante il recupero dell'utente. Riprova");
     });
   }
 
@@ -80,15 +68,9 @@ export class ListaOrdiniComponent implements OnInit {
       responseType: 'text' as "json"
     }).subscribe(response => {
       console.log('Conferma arrivo:', response);
-      this.getOrders(); // Aggiorno la lista degli ordini
+      this.getOrders();
     }, error => {
-      if (error.error && typeof error.error === 'string') {
-        this.errorMessage = error.error;
-      } else if (error.error && error.error.message) {
-        this.errorMessage = error.error.message;
-      } else {
-        this.errorMessage = 'Si è verificato un errore durante la modifica. Riprova.';
-      }
+      this.handleError(error, "Si è verificato un errore durante la modifica. Riprova");
     });
   }
 
@@ -103,15 +85,9 @@ export class ListaOrdiniComponent implements OnInit {
         data: {message: 'Cancellazione avvenuta con successo'}
       });
 
-      this.getOrders(); // Aggiorno la lista degli ordini
+      this.getOrders();
     }, error => {
-      if (error.error && typeof error.error === 'string') {
-        this.errorMessage = error.error;
-      } else if (error.error && error.error.message) {
-        this.errorMessage = error.error.message;
-      } else {
-        this.errorMessage = 'Si è verificato un errore durante la modifica. Riprova.';
-      }
+      this.handleError(error, "Si è verificato un errore durante la cancellazione. Riprova");
     });
   }
 
@@ -124,6 +100,20 @@ export class ListaOrdiniComponent implements OnInit {
       });
     } else {
       this.errorMessage = 'Ordine non trovato. Riprova.';
+    }
+  }
+
+  private handleError(error: any, defaultMessage: string): void {
+    console.log(error);
+    this.getOrders();
+    if (error.error && typeof error.error === 'string') {
+      this.getOrders();
+      this.errorMessage = error.error;
+      this.dialog.open(MessageComponent, { data: { message: error.error } });
+    } else if (error.error && error.error.message) {
+      this.errorMessage = error.error.message;
+    } else {
+      this.errorMessage = defaultMessage;
     }
   }
 

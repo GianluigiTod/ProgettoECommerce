@@ -17,9 +17,12 @@ export class AuthInterceptor implements HttpInterceptor {
         if (error.status === 401 || error.status === 403) {
           return this.handle401Error(request, next);//Gestiamo questo errore ricreando il token
         }
+        /*
         if(error.status === 500){
           this.dialog.showDialog(error.error.message)
         }
+
+         */
         return throwError(error);//Nel caso sia un qualsiasi altro errore lancialo e basta
       })
     );

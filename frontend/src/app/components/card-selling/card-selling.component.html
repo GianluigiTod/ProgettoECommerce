@@ -1,0 +1,226 @@
+<div *ngIf="ruolo === 'venditore' || ruolo === 'admin'">
+  <div class="card-container">
+    <h2>Lista delle Carte in Vendita</h2>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <!-- Bottone "Crea Carta" visibile solo quando "isCreating" è false -->
+    <div class="open-create-button">
+      <button mat-raised-button color="primary" (click)="toggleCreateCard()">
+        Crea Carta
+      </button>
+    </div>
+
+    <div *ngIf="isCreating">
+      <h2>Creazione Nuova Carta</h2>
+
+      <!-- Input per il nome -->
+      <mat-form-field>
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="newCard.name" placeholder="Inserisci il nome">
+      </mat-form-field>
+
+      <!-- Input per il prezzo -->
+      <mat-form-field>
+        <mat-label>Prezzo</mat-label>
+        <input matInput type="number" [(ngModel)]="newCard.prezzo" placeholder="Inserisci il prezzo">
+      </mat-form-field>
+
+      <!-- Input per il mana cost (opzionale) -->
+      <mat-form-field>
+        <mat-label>Costo Mana</mat-label>
+        <input matInput [(ngModel)]="newCard.manaCost" placeholder="Inserisci il costo di mana">
+      </mat-form-field>
+
+      <!-- Input per il tipo (opzionale) -->
+      <mat-form-field>
+        <mat-label>Tipo</mat-label>
+        <input matInput [(ngModel)]="newCard.type" placeholder="Inserisci il tipo">
+      </mat-form-field>
+
+      <!-- Input per la rarità -->
+      <mat-form-field>
+        <mat-label>Rarità</mat-label>
+        <mat-select [(ngModel)]="newCard.rarity">
+          <mat-option *ngFor="let rarity of rarities" [value]="rarity">{{ rarity }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Input per il testo (opzionale) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Testo</mat-label>
+        <textarea matInput [(ngModel)]="newCard.text" rows="5"></textarea>
+      </mat-form-field>
+
+
+      <!-- Input per la potenza (opzionale) -->
+      <mat-form-field>
+        <mat-label>Forza</mat-label>
+        <input matInput type="number" [(ngModel)]="newCard.power" placeholder="Inserisci la potenza">
+      </mat-form-field>
+
+      <!-- Input per la resistenza (opzionale) -->
+      <mat-form-field>
+        <mat-label>Costituzione</mat-label>
+        <input matInput type="number" [(ngModel)]="newCard.toughness" placeholder="Inserisci la resistenza">
+      </mat-form-field>
+
+      <!-- Input per la quantità -->
+      <mat-form-field>
+        <mat-label>Quantità</mat-label>
+        <input matInput type="number" [(ngModel)]="newCard.quantity" placeholder="Inserisci la quantità">
+      </mat-form-field>
+
+      <!-- Input per il codice del set -->
+      <mat-form-field>
+        <mat-label>Codice Set</mat-label>
+        <mat-select [(ngModel)]="newCardSetCode">
+          <mat-option *ngFor="let setCode of setCodes" [value]="setCode">{{ setCode }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Bottone per creare la carta -->
+      <button mat-raised-button color="primary" (click)="createCard()">Crea Carta</button>
+
+      <!-- Bottone per annullare la creazione -->
+      <button mat-raised-button color="warn" (click)="cancelCreate()">Annulla</button>
+    </div>
+
+
+    <!-- Tabella delle carte -->
+    <mat-table [dataSource]="dataSource" matSort>
+
+      <!-- Nome Carta -->
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Nome Carta </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.name }} </mat-cell>
+      </ng-container>
+
+      <!-- Prezzo -->
+      <ng-container matColumnDef="prezzo">
+        <mat-header-cell *matHeaderCellDef> Prezzo </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.prezzo }} </mat-cell>
+      </ng-container>
+
+      <!-- Rarità -->
+      <ng-container matColumnDef="rarity">
+        <mat-header-cell *matHeaderCellDef> Rarità </mat-header-cell>
+        <mat-cell *matCellDef="let card"> {{ card.rarity }} </mat-cell>
+      </ng-container>
+
+      <!-- Immagine -->
+      <ng-container matColumnDef="image">
+        <mat-header-cell *matHeaderCellDef> Immagine </mat-header-cell>
+        <mat-cell *matCellDef="let card">
+          <img *ngIf="imageUrls[card.id]" [src]="imageUrls[card.id]" alt="Card Image" class="card-image" />
+        </mat-cell>
+      </ng-container>
+
+      <!-- Azioni -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> Azioni </mat-header-cell>
+        <mat-cell *matCellDef="let card">
+          <div>
+            <button mat-raised-button color="primary" (click)="editCard(card)">
+              Modifica
+            </button>
+            <button mat-raised-button color="warn" (click)="deleteCard(card.id)">
+              Elimina
+            </button>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <!-- Paginatore -->
+    <mat-paginator
+      [length]="totalCards"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 20]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+
+    <ng-template #noCards>
+      <p>Non ci sono carte disponibili.</p>
+    </ng-template>
+
+    <!-- Sezione di modifica della carta -->
+    <div *ngIf="isEditing" class="edit-dialog">
+      <h3>Modifica Carta</h3>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nome Carta</mat-label>
+        <input matInput [(ngModel)]="selectedCard.name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Prezzo</mat-label>
+        <input matInput type="number" [(ngModel)]="selectedCard.prezzo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Costo Mana</mat-label>
+        <input matInput [(ngModel)]="selectedCard.manaCost" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <input matInput [(ngModel)]="selectedCard.type" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Rarità</mat-label>
+        <mat-select [(ngModel)]="selectedCard.rarity">
+          <mat-option *ngFor="let rarity of rarities" [value]="rarity">{{ rarity }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Testo</mat-label>
+        <textarea matInput [(ngModel)]="selectedCard.text" rows="5"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Forza</mat-label>
+        <input matInput type="number" [(ngModel)]="selectedCard.power" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Costituzione</mat-label>
+        <input matInput type="number" [(ngModel)]="selectedCard.toughness" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Quantità</mat-label>
+        <input matInput type="number" [(ngModel)]="selectedCard.quantity" />
+      </mat-form-field>
+
+      <div class="file-input-container">
+        <input type="file" (change)="onFileSelected($event)" id="fileInputUpdate" />
+        <label for="fileInputUpdate" class="file-label">Scegli un'immagine (opzionale)</label>
+      </div>
+
+      <!-- Bottone per caricare l'immagine, visibile solo se è selezionata un'immagine -->
+      <button mat-raised-button color="accent" *ngIf="selectedFile" (click)="uploadImage(selectedFile, selectedCard.id)">
+        Carica Immagine
+      </button>
+
+      <div class="edit-actions">
+        <button mat-raised-button color="primary" (click)="updateCard(selectedCard)">
+          Conferma
+        </button>
+        <button mat-raised-button color="warn" (click)="cancelEdit()">
+          Annulla
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="ruolo === 'cliente'">
+  <p class="unauthorized-message">Non sei autorizzato a visualizzare questa sezione.</p>
+</div>
+

@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class CardDTO {
 
-    public enum Rarity{comune, non_comune, rara, rara_mitica}
-
     private String name;
     private float prezzo;
     private String manaCost;

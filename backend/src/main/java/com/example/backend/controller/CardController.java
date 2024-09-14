@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 
 import com.example.backend.dto.CardDTO;
+import com.example.backend.dto.CardPageResponse;
 import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.service.CardService;
@@ -36,7 +37,7 @@ public class CardController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<Page<Card>> getAllCards(
+    public ResponseEntity<CardPageResponse> getAllCards(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy,
@@ -46,7 +47,7 @@ public class CardController {
         int pageSize = size.orElse(10);
         String sortField = sortBy.orElse("name");//ho sostituito id con name, perchè altrimenti mostriamo per prime le carte più vecchie(di default)
         String sortDirection = direction.orElse("asc");
-        Page<Card> p = cardService.getAllCards(pageNumber, pageSize, sortField, sortDirection);
+        CardPageResponse p = cardService.getAllCards(pageNumber, pageSize, sortField, sortDirection);
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
@@ -59,7 +60,7 @@ public class CardController {
         try{
             int pageNumber = page.orElse(0);
             int pageSize = size.orElse(10);
-            Page<Card> p = cardService.getCardsBySetId(setId, pageNumber, pageSize);
+            CardPageResponse p = cardService.getCardsBySetId(setId, pageNumber, pageSize);
             return new ResponseEntity<>(p, HttpStatus.OK);
         }catch(SetInesistente e){
             return new ResponseEntity<>("Il set "+setId+" non esiste.", HttpStatus.BAD_REQUEST);
@@ -76,22 +77,24 @@ public class CardController {
         try{
             int pageNumber = page.orElse(0);
             int pageSize = size.orElse(10);
-            Page<Card> p = cardService.getCardsBySellerId(userId, pageNumber, pageSize);
+            CardPageResponse p = cardService.getCardsBySellerId(userId, pageNumber, pageSize);
             return new ResponseEntity<>(p, HttpStatus.OK);
         }catch(UtenteInesistente e){
             return new ResponseEntity<>("L'utente "+userId+" non esiste.", HttpStatus.BAD_REQUEST);
         }
     }
 
+
     @GetMapping("/search")
-    public Page<Card> searchCardsByName(
+    public ResponseEntity<CardPageResponse> searchCardsByName(
             @RequestParam String name,
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size
     ) {
         int pageNumber = page.orElse(0);
         int pageSize = size.orElse(10);
-        return cardService.searchCardsByName(name, pageNumber, pageSize);
+        CardPageResponse p = cardService.searchCardsByName(name, pageNumber, pageSize);
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 
 
@@ -115,6 +118,16 @@ public class CardController {
             return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<String> getCardImage(@PathVariable Long id){
+        try{
+            String url = cardService.getImageUrl(id);
+            return new ResponseEntity<>(url, HttpStatus.OK);
+        }catch (CartaInesistente e){
+            return new ResponseEntity<>("La carta "+id+" non esiste.", HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{id}/setImage")

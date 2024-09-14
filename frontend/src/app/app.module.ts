@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -23,9 +23,19 @@ import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/mat
 import {MatDialogActions, MatDialogContent, MatDialogClose, MatDialogTitle} from "@angular/material/dialog";
 import { ListaOrdiniComponent } from './components/lista-ordini/lista-ordini.component';
 import { DettagliOrdineComponent } from './components/dettagli-ordine/dettagli-ordine.component';
-import {MatLine} from "@angular/material/core";
+import {MatLine, MatOption} from "@angular/material/core";
 import { CartComponent } from './components/cart/cart.component';
 import { SetComponent } from './components/set/set.component';
+import { CardSellingComponent } from './components/card-selling/card-selling.component';
+import {MatCell, MatHeaderCell, MatHeaderRow, MatRow, MatTable} from "@angular/material/table";
+import {MatPaginator} from "@angular/material/paginator";
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import {MatSelect} from "@angular/material/select";
+import {AuthInterceptor} from "./authInterceptor";
+import { CatalogComponent } from './components/catalog/catalog.component';
+
 
 
 @NgModule({
@@ -40,7 +50,9 @@ import { SetComponent } from './components/set/set.component';
     ListaOrdiniComponent,
     DettagliOrdineComponent,
     CartComponent,
-    SetComponent
+    SetComponent,
+    CardSellingComponent,
+    CatalogComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,9 +75,24 @@ import { SetComponent } from './components/set/set.component';
     MatDialogActions,
     MatLine,
     MatDialogClose,
-    MatDialogTitle
+    MatDialogTitle,
+    MatTable,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+    MatPaginator,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatOption,
+    MatSelect
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

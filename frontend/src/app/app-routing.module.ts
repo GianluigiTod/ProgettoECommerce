@@ -10,6 +10,8 @@ import {ListaOrdiniComponent} from "./components/lista-ordini/lista-ordini.compo
 import {DettagliOrdineComponent} from "./components/dettagli-ordine/dettagli-ordine.component";
 import { CartComponent } from "./components/cart/cart.component";
 import {SetComponent} from "./components/set/set.component";
+import { CardSellingComponent } from "./components/card-selling/card-selling.component";
+import {CatalogComponent} from "./components/catalog/catalog.component";
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [authenticationGuard], children: [
@@ -20,6 +22,8 @@ const routes: Routes = [
       { path: 'dettagli-ordine', component: DettagliOrdineComponent},
       { path: 'cart', component: CartComponent },
       { path: 'set', component: SetComponent },
+      { path: 'card-selling', component: CardSellingComponent },
+      { path: 'catalog', component: CatalogComponent },
     ]},
 
   {path: 'login', component: LoginComponent},

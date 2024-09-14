@@ -18,8 +18,6 @@ import java.util.Optional;
 @Service
 public class SetService {
 
-    @Value("${image.upload.dir}")
-    private String imageUploadDir;  // Directory per caricare le immagini
 
     @Value("${image.base.url}")
     private String imageBaseUrl;  // URL base per le immagini
