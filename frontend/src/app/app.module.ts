@@ -35,6 +35,7 @@ import { MatSortModule } from '@angular/material/sort';
 import {MatSelect} from "@angular/material/select";
 import {AuthInterceptor} from "./authInterceptor";
 import { CatalogComponent } from './components/catalog/catalog.component';
+import { CardDetailsComponent } from './components/card-details/card-details.component';
 
 
 
@@ -53,6 +54,7 @@ import { CatalogComponent } from './components/catalog/catalog.component';
     SetComponent,
     CardSellingComponent,
     CatalogComponent,
+    CardDetailsComponent,
   ],
   imports: [
     BrowserModule,

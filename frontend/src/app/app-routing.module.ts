@@ -12,6 +12,7 @@ import { CartComponent } from "./components/cart/cart.component";
 import {SetComponent} from "./components/set/set.component";
 import { CardSellingComponent } from "./components/card-selling/card-selling.component";
 import {CatalogComponent} from "./components/catalog/catalog.component";
+import {CardDetailsComponent} from "./components/card-details/card-details.component";
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [authenticationGuard], children: [
@@ -24,6 +25,7 @@ const routes: Routes = [
       { path: 'set', component: SetComponent },
       { path: 'card-selling', component: CardSellingComponent },
       { path: 'catalog', component: CatalogComponent },
+      { path: 'card-details/:id', component: CardDetailsComponent }
     ]},
 
   {path: 'login', component: LoginComponent},

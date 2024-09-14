@@ -1,0 +1,32 @@
+<div class="card-details-container">
+  <div class="card-header">
+    <h1 class="card-name">{{ card?.name }}</h1>
+  </div>
+
+  <div class="card-content">
+    <div class="card-image-container">
+      <img *ngIf="imageUrl" [src]="imageUrl" alt="{{ card?.name }}" class="card-image"/>
+    </div>
+
+    <div class="card-info">
+      <p><strong>Prezzo:</strong> {{ card?.prezzo | currency }}</p>
+      <p><strong>Venditore:</strong> {{ card?.usernameVenditore }}</p>
+      <p><strong>Mana Cost:</strong> {{ card?.manaCost }}</p>
+      <p><strong>Tipo:</strong> {{ card?.type }}</p>
+      <p><strong>Rarità:</strong> {{ card?.rarity }}</p>
+      <p><strong>Set Code:</strong> {{ card?.setCode }}</p>
+      <p><strong>Quantità:</strong> {{ card?.quantity }}</p>
+      <p><strong>Forza:</strong> {{ card?.power }}</p>
+      <p><strong>Costituzione:</strong> {{ card?.toughness }}</p>
+    </div>
+  </div>
+
+  <div class="card-text">
+    <p><strong>Descrizione:</strong></p>
+    <p>{{ card?.text }}</p>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
+</div>

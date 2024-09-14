@@ -56,3 +56,29 @@
 .mat-paginator {
   margin: 16px 0;
 }
+
+.view-button {
+  background-color: #1976d2; /* Colore blu scuro */
+  color: white; /* Testo bianco */
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.view-button:hover {
+  background-color: #1565c0; /* Blu leggermente più scuro al passaggio del mouse */
+}
+
+.view-button:active {
+  background-color: #0d47a1; /* Ancora più scuro al click */
+}
+
+
+/* Messaggio di errore */
+.error-message {
+  color: #d9534f;
+  background-color: #f2dede;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}

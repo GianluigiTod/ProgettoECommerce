@@ -73,8 +73,6 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
-    }else{
-      console.log("ERRORE");
     }
   }
 
@@ -174,7 +172,6 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
   }
 
   updateCard(card: any): void {
-    console.log(this.selectedCard.rarity);
     if (!card.name || !card.prezzo || !card.rarity || !card.quantity) {
       this.dialog.open(MessageComponent, { data: { message: "I campi 'name', 'prezzo' e 'rarity' sono obbligatori." } });
       return;
@@ -234,6 +231,8 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
 
 
   deleteCard(cardId: number): void {
+    this.isEditing=false;
+    this.isCreating=false;
     this.http.delete<any>(API.backend + `/api/card/delete/${cardId}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
       responseType: 'text' as 'json' // Specifica che la risposta è di tipo testo

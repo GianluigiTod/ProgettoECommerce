@@ -1,14 +1,21 @@
 <div class="catalog-container">
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
   <!-- Search Bar for Card Name -->
   <mat-form-field appearance="fill">
     <mat-label>Ricerca per nome della carta</mat-label>
     <input matInput (keyup)="searchCards($event)" placeholder="Inserisci il nome della carta">
   </mat-form-field>
 
-  <!-- Search Bar for Set Code -->
+  <!-- Dropdown for Set Code -->
   <mat-form-field appearance="fill">
-    <mat-label>Ricerca per codice del set</mat-label>
-    <input matInput (keyup)="getCardsBySetCode($event)" placeholder="Inserisci il codice del set">
+    <mat-label>Seleziona il codice del set</mat-label>
+    <mat-select [(value)]="selectedSetCode" (selectionChange)="getCardsBySetCode($event.value)">
+      <mat-option *ngFor="let setCode of setCodes" [value]="setCode">
+        {{setCode}}
+      </mat-option>
+    </mat-select>
   </mat-form-field>
 
   <!-- Sorting Buttons -->
@@ -44,7 +51,7 @@
     <!-- Price Column -->
     <ng-container matColumnDef="price">
       <th mat-header-cell *matHeaderCellDef> Prezzo </th>
-      <td mat-cell *matCellDef="let card"> {{card.price | currency}} </td>
+      <td mat-cell *matCellDef="let card"> {{card.prezzo | currency}} </td>
     </ng-container>
 
     <!-- Quantity Column -->
@@ -58,6 +65,14 @@
       <th mat-header-cell *matHeaderCellDef> Immagine </th>
       <td mat-cell *matCellDef="let card">
         <img *ngIf="imageUrls[card.id]" [src]="imageUrls[card.id]" alt="{{card.name}}" class="card-image"/>
+      </td>
+    </ng-container>
+
+    <!-- View Column -->
+    <ng-container matColumnDef="view">
+      <th mat-header-cell *matHeaderCellDef> Azioni </th>
+      <td mat-cell *matCellDef="let card">
+        <button mat-raised-button color="primary" class="view-button" (click)="viewCardDetails(card.id)">View</button>
       </td>
     </ng-container>
 

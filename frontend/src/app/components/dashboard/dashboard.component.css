@@ -29,28 +29,7 @@ mat-toolbar {
   font-size: 24px; /* Dimensione dell'icona */
 }
 
-/* Stile per il nome del sito */
-.site-title {
-  font-size: 20px; /* Dimensione del testo */
-  font-weight: bold; /* Grassetto per il nome del sito */
-}
 
-/* Stile per il pulsante logout */
-.logout-button {
-  color: #f44336; /* Colore del testo del pulsante */
-  background-color: #ffffff; /* Colore di sfondo del pulsante */
-  border: 1px solid #f44336; /* Bordo del pulsante */
-  border-radius: 4px; /* Angoli arrotondati */
-  padding: 4px 8px; /* Padding interno */
-  font-size: 14px; /* Dimensione del testo */
-  display: flex;
-  align-items: center; /* Allinea verticalmente l'icona e il testo */
-}
-
-.logout-button mat-icon {
-  font-size: 16px; /* Dimensione dell'icona di logout */
-  margin-right: 4px; /* Spazio tra l'icona e il testo */
-}
 
 /* Media query per design responsivo */
 @media (max-width: 768px) {
@@ -59,14 +38,32 @@ mat-toolbar {
     align-items: flex-start; /* Allinea a sinistra */
   }
 
-  .site-title {
-    font-size: 18px; /* Riduce la dimensione del testo sui dispositivi mobili */
+  mat-toolbar .site-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 16px;
   }
 
-  .logout-button {
-    margin-top: 8px; /* Spazio tra il messaggio di benvenuto e il pulsante di logout */
-    width: 100%; /* Larghezza del pulsante su dispositivi mobili */
-    justify-content: center; /* Allinea l'icona e il testo al centro */
+  mat-toolbar .welcome-message {
+    font-size: 18px;
+    flex-grow: 1;
+    text-align: center;
+    color: white;
+  }
+
+  mat-toolbar .cart-button {
+    margin-right: 16px;
+  }
+
+  mat-toolbar .logout-button {
+    color: #f44336;
+    background-color: #ffffff;
+    border: 1px solid #f44336;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -104,4 +101,32 @@ mat-toolbar {
 
 .quick-links a:hover {
   text-decoration: underline;
+}
+
+.site-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 16px;
+}
+
+.welcome-message {
+  font-size: 24px; /* Dimensione del testo aumentata */
+  color: white; /* Colore del testo */
+  margin-left: 350px; /* Allinea il testo a sinistra */
+  margin-right: auto; /* Spazio automatico per spingere il testo verso sinistra */
+}
+
+.cart-button {
+  margin-right: 16px;
+}
+
+.logout-button {
+  color: #f44336;
+  background-color: #ffffff;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
 }

@@ -7,7 +7,6 @@ import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -152,6 +151,7 @@ public class CardController {
     public ResponseEntity<?> updateCard(@RequestBody Card card) {
         try{
             Card c = cardService.aggiornaCarta(card);
+
             return new ResponseEntity<>(c, HttpStatus.OK);
         }catch(CartaInesistente e){
             return new ResponseEntity<>("La carta "+card.getId()+" non esiste.", HttpStatus.NOT_FOUND);

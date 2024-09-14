@@ -152,7 +152,7 @@ public class CardService {
 
     @Transactional(readOnly = false)
     public Card setCardImage(MultipartFile image, Long id) throws CartaInesistente, IOException, ImageNotFound {
-        Optional<Card> card = cardRepository.findById(id);
+        Optional<Card> card = cardRepository.findCardById(id);
         if(!card.isPresent()){
             throw new CartaInesistente();
         }
@@ -168,11 +168,12 @@ public class CardService {
 
     @Transactional(readOnly = false)
     public Card aggiornaCarta(Card c) throws CartaInesistente, PriceProblem, QuantityProblem {
-        Optional<Card> optionalCard = cardRepository.findById(c.getId());
+        Optional<Card> optionalCard = cardRepository.findCardById(c.getId());
         if(!optionalCard.isPresent()){
             throw new CartaInesistente();
         }
         Card card = optionalCard.get();
+
 
         if(!card.getUsernameVenditore().equals(Utils.getUser()))
             throw new IllegalStateException();
@@ -200,10 +201,10 @@ public class CardService {
         if (!c.getText().equals(card.getText())) {
             card.setText(c.getText());
         }
-        if (c.getPower() != c.getPower()) {
+        if (c.getPower() != card.getPower()) {
             card.setPower(c.getPower());
         }
-        if (c.getToughness() != c.getToughness()) {
+        if (c.getToughness() != card.getToughness()) {
             card.setToughness(c.getToughness());
         }
         if(c.getQuantity() <= 0){
@@ -219,7 +220,7 @@ public class CardService {
 
     @Transactional(readOnly = false)
     public void deleteCard(Long id) throws CartaInesistente, ImageNotFound {
-        Optional<Card> optionalCard = cardRepository.findById(id);
+        Optional<Card> optionalCard = cardRepository.findCardById(id);
         if(!optionalCard.isPresent()){
             throw new CartaInesistente();
         }

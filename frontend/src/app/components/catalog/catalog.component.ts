@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageComponent } from "../finestraMessaggi/message/message.component";
 import { AuthService } from "../../service/auth.service";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalog',
@@ -16,9 +17,11 @@ import { AuthService } from "../../service/auth.service";
 export class CatalogComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
-  displayedColumns: string[] = ['name', 'rarity', 'price', 'quantity', 'image'];
+  displayedColumns: string[] = ['name', 'rarity', 'price', 'quantity', 'image', 'view'];
   dataSource = new MatTableDataSource<any>([]);
   setCodes: string[] = [];
+  setIds: { [key: string]: number } = {};
+  selectedSetCode: string = 'Nessun Set';
   cards: any[] = [];
   imageUrls: { [key: number]: string } = {};
   totalCards: number = 0;
@@ -34,7 +37,8 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     private http: HttpClient,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -57,11 +61,12 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       direction
     };
 
+    this.selectedSetCode="Nessun Set";
     this.http.get<any>(API.backend + '/api/card/all', {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
       params
     }).subscribe(response => {
-      this.dataSource.data = response.cards;
+      this.dataSource = new MatTableDataSource<any>(response.cards);
       this.cards=response.cards;
       this.totalCards = response.numTotaleCarte;
       if (this.paginator) {
@@ -81,8 +86,10 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     }).subscribe(
       (response) => {
         response.forEach(set => {
-          this.setCodes.push(set.setCode);
+          this.setIds[set.setCode] = set.id;
         });
+        this.setCodes = Object.keys(this.setIds);
+        this.setCodes.unshift('Nessun Set');
       },
       (error) => {
         this.handleError(error, "Errore durante il recupero dei set.");
@@ -98,7 +105,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       }).subscribe((url: string) => {
         this.imageUrls[card.id] = url;
       }, (error) => {
-        this.handleError(error, "Impossibile caricare l'immagine per il set.");
+        this.handleError(error, "Impossibile caricare l'immagine per una carta.");
       });
     });
   }
@@ -117,25 +124,31 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     this.http.get<any>(`${API.backend}/api/card/${id}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
     }).subscribe(response => {
-      this.dataSource.data = [response]; // Example of setting data for a single card
+
     }, error => {
       this.handleError(error, "Si è verificato un errore durante il recupero della carta.");
     });
   }
 
-  getCardsBySetCode(event: KeyboardEvent): void {
-    const inputElement = event.target as HTMLInputElement;
-    const setCode = inputElement.value;
-
-    if (!setCode) {
-      this.getCards(); // Get all cards if search is cleared
-      return;
+  getCardsBySetCode(setCode: string, page: number = 0, size: number = 10): void {
+    if(setCode === "Nessun Set"){
+      this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
+      return
     }
+    const setId = this.setIds[setCode];
+    const params = {
+      page: page.toString(),
+      size: size.toString(),
+    };
 
-    this.http.get<any>(`${API.backend}/api/card/set/${setCode}`, {
-      headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
+    this.http.get<any>(`${API.backend}/api/card/set/${setId}`, {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
+      params: params
     }).subscribe(response => {
-      this.dataSource.data = response.cards;
+      this.dataSource = new MatTableDataSource<any>(response.cards);
+      if (this.paginator) {
+        this.paginator.length = response.numTotaleCarte;
+      }
     }, error => {
       this.handleError(error, "Si è verificato un errore durante il recupero delle carte per il set.");
     });
@@ -146,7 +159,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     const name = inputElement.value;
 
     if(!name){
-      this.getCards();
+      this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
       return
     }
 
@@ -154,7 +167,10 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
       params: { name }
     }).subscribe(response => {
-      this.dataSource.data = response.cards;
+      this.dataSource = new MatTableDataSource<any>(response.cards);
+      if (this.paginator) {
+        this.paginator.length = response.numTotaleCarte;
+      }
     }, error => {
       this.handleError(error, "Si è verificato un errore durante la ricerca delle carte.");
     });
@@ -163,7 +179,21 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   onPageChange(event: any): void {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
-    this.getCards(this.currentPage, this.pageSize);
+    if(this.selectedSetCode !== "Nessun Set"){
+      this.getCardsBySetCode(this.selectedSetCode, this.currentPage, this.pageSize);
+    }else{
+      this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
+    }
+  }
+
+  viewCardDetails(cardId: number): void {
+    this.router.navigate(['/card-details', cardId])
+      .then(() => {
+        console.log('Navigazione completata con successo');
+      })
+      .catch(err => {
+        console.error('Errore durante la navigazione', err);
+      });
   }
 
   private handleError(error: any, defaultMessage: string): void {
