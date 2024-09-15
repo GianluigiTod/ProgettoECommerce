@@ -46,6 +46,11 @@
               <button mat-raised-button color="warn" (click)="deleteCartItem(item.id)">
                 Rimuovi
               </button>
+
+              <!-- Bottone View per visualizzare i dettagli della carta -->
+              <button mat-raised-button color="primary" (click)="viewCardDetails(item.cardSnapshot.snapCardId)">
+                View
+              </button>
             </div>
           </div>
         </div>

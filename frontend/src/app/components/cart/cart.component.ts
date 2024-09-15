@@ -144,6 +144,14 @@ export class CartComponent implements OnInit {
     }
   }
 
-
+  viewCardDetails(cardId: number): void {
+    this.router.navigate(['/card-details', cardId])
+      .then(() => {
+        console.log('Navigazione completata con successo');
+      })
+      .catch(err => {
+        console.error('Errore durante la navigazione', err);
+      });
+  }
 
 }

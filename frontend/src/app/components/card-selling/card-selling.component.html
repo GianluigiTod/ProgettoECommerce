@@ -99,7 +99,7 @@
       <!-- Prezzo -->
       <ng-container matColumnDef="prezzo">
         <mat-header-cell *matHeaderCellDef> Prezzo </mat-header-cell>
-        <mat-cell *matCellDef="let card"> {{ card.prezzo }} </mat-cell>
+        <mat-cell *matCellDef="let card"> {{ card.prezzo | currency:'EUR':'symbol'}} </mat-cell>
       </ng-container>
 
       <!-- Rarità -->

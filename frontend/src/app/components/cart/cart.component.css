@@ -82,6 +82,21 @@ mat-form-field {
   margin: 0 5px;
 }
 
+.cart-item .item-actions button {
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.cart-item .item-actions button.view-button {
+  background-color: #1976d2; /* Colore blu scuro */
+  color: white;
+  font-weight: bold;
+}
+
+.cart-item .item-actions button.view-button:hover {
+  background-color: #1565c0;
+}
+
 
 /* Messaggio di errore */
 .error-message {

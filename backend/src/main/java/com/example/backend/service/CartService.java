@@ -51,16 +51,18 @@ public class CartService {
                     hasChanges = true;
                     if(verifiche.get("changes")){
                         notificationMessage.append(String.format("La carta %s è stata modificata.\n", cartItem.getCardSnapshot().getName()));
+
+                        // Aggiorna il cardSnapshot nel cartItem
+                        updateCardSnapshot(cartItem, cartItem.getOriginalCard());
                     }
+
                     if(verifiche.get("quantityChanges")){
                         notificationMessage.append(String.format("La quantità della carta %s non è più sufficiente", cartItem.getCardSnapshot().getName()));
+
+                        //Aggiorna la quantità del cartItem
+                        cartItem.setQuantity(cartItem.getOriginalCard().getQuantity());
                     }
 
-                    // Aggiorna il cardSnapshot nel cartItem
-                    updateCardSnapshot(cartItem, cartItem.getOriginalCard());
-
-                    //Aggiorna la quantità del cartItem
-                    cartItem.setQuantity(cartItem.getOriginalCard().getQuantity());
                     cartItemRepository.save(cartItem);
                 }
             }
@@ -71,7 +73,6 @@ public class CartService {
             if (hasChanges) {
                 response.setMessage(notificationMessage.toString());
             }
-
             return response;
         }else{
             throw new IllegalArgumentException();
@@ -84,6 +85,8 @@ public class CartService {
         snapshot.setName(originalCard.getName());
         snapshot.setSetCode(originalCard.getSetCode());
         snapshot.setUsernameVenditore(originalCard.getUsernameVenditore());
+        snapshot.setRarity(originalCard.getRarity());
+        //L'id non lo aggiorno perché rimane sempre lo stesso
     }
 
     //L'unico modo per poter cambiare il prezzo del cartItem è cancellare l'articolo nel carrello
@@ -95,7 +98,7 @@ public class CartService {
         //Da notare che qui non confronto il prezzo
         boolean changes = !originalCard.getName().equals(cardSnapshot.getName()) ||
                 !originalCard.getSetCode().equals(cardSnapshot.getSetCode()) ||
-                !originalCard.getUsernameVenditore().equals(cardSnapshot.getUsernameVenditore());
+                !originalCard.getRarity().equals(cardSnapshot.getRarity());
 
         //Per verificare che la quantità sia ancora sufficiente
         boolean quantityChanges = cartItem.getQuantity() > originalCard.getQuantity();
@@ -122,10 +125,8 @@ public class CartService {
                         throw new IllegalStateException();
 
                     if (dto.getQuantity() > card.getQuantity() || dto.getQuantity() <= 0) {
-                        System.out.println("BROOO: "+card.getQuantity()+" "+dto.getQuantity());
                         throw new QuantityProblem();
                     }
-
 
 
                     // Crea un CardSnapshot basato sulla carta corrente
@@ -133,6 +134,8 @@ public class CartService {
                     cardSnapshot.setName(card.getName());
                     cardSnapshot.setSetCode(card.getSetCode());
                     cardSnapshot.setUsernameVenditore(card.getUsernameVenditore());
+                    cardSnapshot.setSnapCardId(card.getId());
+                    cardSnapshot.setRarity(card.getRarity());
 
 
                     Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
@@ -170,7 +173,6 @@ public class CartService {
                 throw new IllegalStateException();
 
             Card card = cartItem.getOriginalCard();
-            System.out.println("Quantità item: "+quantity+", quantità carta: "+card.getQuantity());
             if (quantity <= card.getQuantity() && quantity > 0) {
                 cartItem.setQuantity(quantity);
                 return cartItemRepository.save(cartItem);

@@ -9,7 +9,7 @@
     </div>
 
     <div class="card-info">
-      <p><strong>Prezzo:</strong> {{ card?.prezzo | currency }}</p>
+      <p><strong>Prezzo:</strong> {{ card?.prezzo | currency:'EUR':'symbol' }}</p>
       <p><strong>Venditore:</strong> {{ card?.usernameVenditore }}</p>
       <p><strong>Mana Cost:</strong> {{ card?.manaCost }}</p>
       <p><strong>Tipo:</strong> {{ card?.type }}</p>

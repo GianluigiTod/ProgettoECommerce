@@ -51,7 +51,7 @@
     <!-- Price Column -->
     <ng-container matColumnDef="price">
       <th mat-header-cell *matHeaderCellDef> Prezzo </th>
-      <td mat-cell *matCellDef="let card"> {{card.prezzo | currency}} </td>
+      <td mat-cell *matCellDef="let card"> {{card.prezzo | currency:'EUR':'symbol'}} </td>
     </ng-container>
 
     <!-- Quantity Column -->
@@ -68,6 +68,7 @@
       </td>
     </ng-container>
 
+
     <!-- View Column -->
     <ng-container matColumnDef="view">
       <th mat-header-cell *matHeaderCellDef> Azioni </th>
@@ -75,6 +76,31 @@
         <button mat-raised-button color="primary" class="view-button" (click)="viewCardDetails(card.id)">View</button>
       </td>
     </ng-container>
+
+    <!-- Quantity Block Column -->
+    <ng-container matColumnDef="quantityBlock">
+      <th mat-header-cell *matHeaderCellDef> Quantità </th>
+      <td mat-cell *matCellDef="let card">
+        <div class="quantity-block">
+          <!-- Input for selecting quantity -->
+          <input type="number" [(ngModel)]="selectedQuantity" min="1" max="{{card.quantity}}" style="width: 60px;">
+          <!-- Static display of available quantity -->
+          <span>su {{card.quantity}}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Add to Cart Column -->
+    <ng-container matColumnDef="addToCart">
+      <th mat-header-cell *matHeaderCellDef> Add </th>
+      <td mat-cell *matCellDef="let card">
+        <button class="add-to-cart-button" (click)="addToCart(card)">
+          Add
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
 
     <!-- Header and Row Definitions -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

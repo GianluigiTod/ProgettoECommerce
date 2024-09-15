@@ -108,6 +108,7 @@ input[type="file"] {
   background-color: #303f9f; /* Colore di hover simile */
 }
 
+
 /* Stile per il messaggio di autorizzazione */
 .unauthorized-message {
   color: #ff0000;

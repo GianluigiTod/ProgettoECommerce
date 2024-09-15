@@ -13,5 +13,10 @@ public class CardSnapshot {
     private String usernameVenditore;
     @Column(nullable = false, name="set_code")
     private String setCode;
+    @Column(nullable = false)
+    private Long snapCardId;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Card.Rarity rarity;
 
 }

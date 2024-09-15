@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageComponent } from "../finestraMessaggi/message/message.component";
 import { AuthService } from "../../service/auth.service";
 import { Router } from '@angular/router';
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-catalog',
@@ -17,7 +18,7 @@ import { Router } from '@angular/router';
 export class CatalogComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
-  displayedColumns: string[] = ['name', 'rarity', 'price', 'quantity', 'image', 'view'];
+  displayedColumns: string[] = ['name', 'rarity', 'price', 'quantity', 'image', 'view', 'quantityBlock', 'addToCart'];
   dataSource = new MatTableDataSource<any>([]);
   setCodes: string[] = [];
   setIds: { [key: string]: number } = {};
@@ -30,6 +31,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   errorMessage: string = '';
   username: string = '';
   token: string = '';
+  selectedQuantity: number = 1;
   currentSortField: string = 'name';
   sortDirection: string = 'asc';
 
@@ -51,6 +53,16 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
     }
+  }
+
+  private getUser(username: string, token: string) : Observable<any> {
+    const url = API.backend+'/api/user/get';
+    const options = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
+      params: { username }
+    };
+
+    return this.http.get(url, options);
   }
 
   getCards(page: number = 0, size: number = 10, sortBy: string = 'name', direction: string = 'asc'): void {
@@ -120,15 +132,35 @@ export class CatalogComponent implements OnInit, AfterViewInit {
     this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
   }
 
-  getCardById(id: number): void {
-    this.http.get<any>(`${API.backend}/api/card/${id}`, {
-      headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
-    }).subscribe(response => {
+  addToCart(card: any): void {
+    if (this.selectedQuantity > 0 && this.selectedQuantity <= card.quantity) {
+      this.getUser(this.username, this.token).subscribe(
+        (user) => {
+          const userId = user.id;
+          const cartDTO = {
+            utenteId: userId,
+            cardId: card.id,
+            quantity: this.selectedQuantity,
+          };
 
-    }, error => {
-      this.handleError(error, "Si è verificato un errore durante il recupero della carta.");
-    });
+          this.http.post<any>(`${API.backend}/api/cart/add`, cartDTO, {
+            headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
+          }).subscribe(() => {
+              this.dialog.open(MessageComponent, {data: { message: `Aggiunto al carrello: ${card.name}, Quantità: ${this.selectedQuantity}` }});
+              this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
+            }, (error) => {
+              this.handleError(error, "Si è verificato un errore durante l'aggiunta della carta al carrello.");
+            }
+          );
+        }, (error) => {
+          this.handleError(error, "Si è verificato un errore durante il recupero dell'utente. Riprova.");
+        }
+      );
+    } else {
+      this.dialog.open(MessageComponent, { data: { message: 'Quantità non valida' } });
+    }
   }
+
 
   getCardsBySetCode(setCode: string, page: number = 0, size: number = 10): void {
     if(setCode === "Nessun Set"){
