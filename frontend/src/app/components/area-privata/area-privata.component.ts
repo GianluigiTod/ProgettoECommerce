@@ -85,19 +85,15 @@ export class AreaPrivataComponent implements OnInit{
       },
       error: (error) => {
         if (error.error && typeof error.error === 'string') {
-          // Se l'errore è una stringa (come il messaggio nel tuo ResponseEntity)
           this.errorMessage = error.error;
         } else if (error.error && error.error.message) {
-          // Se c'è un messaggio strutturato nel campo `message`
           this.errorMessage = error.error.message;
         } else {
-          // Messaggio generico in caso di errore
           this.errorMessage = 'Si è verificato un errore durante la registrazione. Riprova.';
         }
       }
     });
 
-    //Chiudi la finestra di conferma se è aperta
     this.showConfirmDialog = false;
   }
 

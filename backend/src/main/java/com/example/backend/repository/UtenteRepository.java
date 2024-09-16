@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public interface UtenteRepository extends JpaRepository<Utente,Long> {
     Optional<Utente> findUtenteById(Long id);
 

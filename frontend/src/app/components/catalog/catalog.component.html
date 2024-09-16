@@ -83,7 +83,7 @@
       <td mat-cell *matCellDef="let card">
         <div class="quantity-block">
           <!-- Input for selecting quantity -->
-          <input type="number" [(ngModel)]="selectedQuantity" min="1" max="{{card.quantity}}" style="width: 60px;">
+          <input type="number" [(ngModel)]="selectedQuantity[card.id]" min="1" max="{{card.quantity}}" style="width: 60px;">
           <!-- Static display of available quantity -->
           <span>su {{card.quantity}}</span>
         </div>

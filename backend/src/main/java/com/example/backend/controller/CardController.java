@@ -6,10 +6,12 @@ import com.example.backend.dto.CardPageResponse;
 import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.service.CardService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
+@Validated
 @RequestMapping("/api/card")
 public class CardController {
 
@@ -44,7 +47,7 @@ public class CardController {
     ) {
         int pageNumber = page.orElse(0);
         int pageSize = size.orElse(10);
-        String sortField = sortBy.orElse("name");//ho sostituito id con name, perchè altrimenti mostriamo per prime le carte più vecchie(di default)
+        String sortField = sortBy.orElse("name");
         String sortDirection = direction.orElse("asc");
         CardPageResponse p = cardService.getAllCards(pageNumber, pageSize, sortField, sortDirection);
         return new ResponseEntity<>(p, HttpStatus.OK);
@@ -97,9 +100,9 @@ public class CardController {
     }
 
 
-    @PostMapping("/create")//la post va fatta diversa, bisogna guardare il set, per via dell'immagine
-    @PreAuthorize("hasRole('venditore')")
-    public ResponseEntity<?> createCard(@RequestBody CardDTO cardDTO) {
+    @PostMapping("/create")
+    @PreAuthorize("hasRole('venditore') or hasRole('admin')")
+    public ResponseEntity<?> createCard(@Valid @RequestBody CardDTO cardDTO) {
         try{
             Card savedCard = cardService.createCard(cardDTO);
             return new ResponseEntity<>(savedCard, HttpStatus.CREATED);
@@ -110,9 +113,9 @@ public class CardController {
         }catch(SetInesistente e){
             return new ResponseEntity<>("Il set "+cardDTO.getSetId()+" non esiste.", HttpStatus.NOT_FOUND);
         }catch(PriceProblem e){
-            return new ResponseEntity<>("Il prezzo deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Il prezzo deve essere maggiore di 0.", HttpStatus.BAD_REQUEST);
         }catch(QuantityProblem e){
-            return new ResponseEntity<>("La quantità deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("La quantità deve essere maggiore di 0.", HttpStatus.BAD_REQUEST);
         }catch(IOException ioe){
             return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -130,7 +133,7 @@ public class CardController {
     }
 
     @PutMapping("/{id}/setImage")
-    @PreAuthorize("hasRole('venditore')")
+    @PreAuthorize("hasRole('venditore') or hasRole('admin')")
     public ResponseEntity<?> addImage(@RequestParam MultipartFile file, @PathVariable Long id)  {
         try{
             Card c = cardService.setCardImage(file, id);
@@ -147,11 +150,10 @@ public class CardController {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasRole('venditore')")
+    @PreAuthorize("hasRole('venditore') or hasRole('admin')")
     public ResponseEntity<?> updateCard(@RequestBody Card card) {
         try{
             Card c = cardService.aggiornaCarta(card);
-
             return new ResponseEntity<>(c, HttpStatus.OK);
         }catch(CartaInesistente e){
             return new ResponseEntity<>("La carta "+card.getId()+" non esiste.", HttpStatus.NOT_FOUND);
@@ -166,7 +168,7 @@ public class CardController {
 
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('venditore')")
+    @PreAuthorize("hasRole('venditore') or hasRole('admin')")
     public ResponseEntity<String> deleteCard(@PathVariable Long id)  {
         try{
             cardService.deleteCard(id);

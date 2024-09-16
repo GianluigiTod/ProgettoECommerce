@@ -2,6 +2,7 @@ package com.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class Set {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank
     private String setCode;
 
     @Column
@@ -23,8 +25,11 @@ public class Set {
     @Column
     private String imagePath;
 
+    @Version
+    @JsonIgnore
+    private Long version;
 
-    // Relazione con l'entità Card
+
     @OneToMany(mappedBy = "set", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonIgnore
     private List<Card> cards;

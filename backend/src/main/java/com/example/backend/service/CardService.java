@@ -57,8 +57,7 @@ public class CardService {
         if(!card.isPresent()){
             throw new CartaInesistente();
         }
-        Card c = card.get();
-        return c;
+        return card.get();
     }
 
     @Transactional(readOnly = true)
@@ -91,11 +90,11 @@ public class CardService {
     @Transactional(readOnly = true)
     public CardPageResponse searchCardsByName(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Card> pagina = cardRepository.findByNameContaining(name, pageable);
+        Page<Card> pagina = cardRepository.searchByName(name, pageable);
         return new CardPageResponse(pagina);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Card createCard(CardDTO cardDTO) throws UtenteInesistente, SetInesistente, PriceProblem, QuantityProblem, IOException {
         Optional<Utente> utenteOptional = utenteRepository.findUtenteById(cardDTO.getVenditoreId());
         if(!utenteOptional.isPresent())
@@ -125,7 +124,7 @@ public class CardService {
         Card card = new Card();
         card.setVenditore(venditore);
         card.setSet(set);
-        card.setImagePath(imageService.creaImmagine(null));//Per creare una carta con l'immagine di default
+        card.setImagePath(imageService.creaImmagine(null));
         card.setUsernameVenditore(venditore.getUsername());
         card.setSetCode(set.getSetCode());
         card.setPower(cardDTO.getPower());
@@ -150,7 +149,7 @@ public class CardService {
         return imageBaseUrl + c.getImagePath();
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Card setCardImage(MultipartFile image, Long id) throws CartaInesistente, IOException, ImageNotFound {
         Optional<Card> card = cardRepository.findCardById(id);
         if(!card.isPresent()){
@@ -159,14 +158,13 @@ public class CardService {
         Card c = card.get();
         if(!c.getUsernameVenditore().equals(Utils.getUser()))
             throw new IllegalStateException();
-
         imageService.eliminaImmagine(c.getImagePath());
         c.setImagePath(imageService.creaImmagine(image));
         return c;
     }
 
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Card aggiornaCarta(Card c) throws CartaInesistente, PriceProblem, QuantityProblem {
         Optional<Card> optionalCard = cardRepository.findCardById(c.getId());
         if(!optionalCard.isPresent()){
@@ -229,15 +227,12 @@ public class CardService {
         if(!c.getUsernameVenditore().equals(Utils.getUser()))
             throw new IllegalStateException();
 
-        // Recupera tutti i CartItem associati alla carta
         List<CartItem> cartItems = cartItemRepository.findByOriginalCardId(id);
 
-        // Notifica agli utenti che hanno la carta nel carrello
         for (CartItem cartItem : cartItems) {
             Utente utente = cartItem.getUtente();
             notificationService.notifyUserAboutDeletedCard(utente, c);
         }
-
         cardRepository.delete(c);
         imageService.eliminaImmagine(c.getImagePath());
     }

@@ -3,7 +3,10 @@ package com.example.backend.service;
 import com.example.backend.exception.ImageNotFound;
 import com.example.backend.exception.SetEsistente;
 import com.example.backend.exception.SetInesistente;
+import com.example.backend.model.Card;
+import com.example.backend.model.CartItem;
 import com.example.backend.model.Set;
+import com.example.backend.repository.CartItemRepository;
 import com.example.backend.repository.SetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +31,13 @@ public class SetService {
     @Autowired
     private ImageService imageService;
 
-    @Transactional(readOnly = false)
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Transactional
     public Set createSetWithImage(String setCode, String setName, MultipartFile file) throws SetEsistente, IOException {
         Optional<Set> optionalSet = setRepository.findSetByCode(setCode);
         if(optionalSet.isPresent()) {
@@ -63,7 +72,7 @@ public class SetService {
         return s;
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public Set aggiornaSet(Set set) throws SetInesistente, SetEsistente {
         Optional<Set> setOptional = setRepository.findSetById(set.getId());
         if(setOptional.isPresent()){
@@ -83,7 +92,7 @@ public class SetService {
         }
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void aggiornaImmagineSet(MultipartFile file, Long id) throws SetInesistente, IOException, ImageNotFound {
         Optional<Set> setOptional = setRepository.findSetById(id);
         if(setOptional.isPresent()){
@@ -95,13 +104,20 @@ public class SetService {
         }
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void eliminaSet(Long id) throws SetInesistente, ImageNotFound {
         Optional<Set> setOptional = setRepository.findSetById(id);
         if(!setOptional.isPresent()){
             throw new SetInesistente();
         }
         Set set = setOptional.get();
+        if(!set.getCards().isEmpty()){
+            for(Card card: set.getCards()){
+                for(CartItem cartItem : cartItemRepository.findByOriginalCardId(card.getId())){
+                    notificationService.notifyUserAboutDeletedCard(cartItem.getUtente(), cartItem.getOriginalCard());
+                }
+            }
+        }
         setRepository.delete(set);
         imageService.eliminaImmagine(set.getImagePath());
     }

@@ -45,14 +45,12 @@ public class UtenteController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> cancellaUtente(@PathVariable Long id){
         try{
-            boolean isDeleated = utenteService.cancellaUtente(id);
-            if(isDeleated){
-                return new ResponseEntity<>("Cancellazione avvenuta con successo", HttpStatus.OK);
-            }else{
-                return new ResponseEntity<>("L'utente "+id+" non esiste.", HttpStatus.BAD_REQUEST);
-            }
+            utenteService.cancellaUtente(id);
+            return new ResponseEntity<>("Cancellazione avvenuta con successo", HttpStatus.OK);
         }catch(IllegalStateException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }catch(UtenteInesistente e){
+            return new ResponseEntity<>("L'utente "+id+" non esiste.", HttpStatus.BAD_REQUEST);
         }
     }
 

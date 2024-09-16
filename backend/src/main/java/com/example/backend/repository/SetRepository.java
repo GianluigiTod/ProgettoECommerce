@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public interface SetRepository extends JpaRepository<Set, Long> {
     Optional<Set> findSetById(Long id);
 

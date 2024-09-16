@@ -17,12 +17,11 @@ export class AuthInterceptor implements HttpInterceptor {
         if (error.status === 401 || error.status === 403) {
           return this.handle401Error(request, next);//Gestiamo questo errore ricreando il token
         }
-        /*
+
         if(error.status === 500){
           this.dialog.showDialog(error.error.message)
         }
 
-         */
         return throwError(error);//Nel caso sia un qualsiasi altro errore lancialo e basta
       })
     );
@@ -32,6 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return this.authService.refresh().pipe(//utilizzo il metodo refresh per effettuare una richiesta http per ottenere il nuovo token
       switchMap((token: any) => {
         this.authService.setToken(token.access_token);
+        console.log(this.authService.getToken())  ;
         const authRequest = request.clone({setHeaders: {Authorization: `Bearer ${token.access_token}`}});
         return next.handle(authRequest);
       }),

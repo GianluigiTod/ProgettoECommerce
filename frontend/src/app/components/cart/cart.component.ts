@@ -92,8 +92,7 @@ export class CartComponent implements OnInit {
     this.http.delete(API.backend+`/api/cart/delete/${itemId}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
       responseType: 'text' as "json"
-    }).subscribe(
-      (response) => {
+    }).subscribe((response) => {
         this.dialog.open(MessageComponent, { data: { message: 'Articolo rimosso con successo dal carrello!' } });
         this.getCartItems();
       },

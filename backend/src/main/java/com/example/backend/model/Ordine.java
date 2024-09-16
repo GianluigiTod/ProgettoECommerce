@@ -32,6 +32,10 @@ public class Ordine {
     @JoinColumn(name = "utente_id", nullable=false)
     private Utente utente;
 
+    @Version
+    @JsonIgnore
+    private Long version;
+
     public Ordine() {
         arrivato = false;
     }

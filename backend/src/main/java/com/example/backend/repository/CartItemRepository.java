@@ -18,9 +18,9 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     List<CartItem> findByUtenteUsername(String username);
 
-    // Restituisce un Optional con il CartItem esistente per lo stesso utente e carta
     @Query("SELECT ci FROM CartItem ci WHERE ci.utente = :utente AND ci.originalCard = :card")
     Optional<CartItem> findByUtenteAndCard(@Param("utente") Utente utente, @Param("card") Card card);
 
     List<CartItem> findByOriginalCardId(Long cardId);
+
 }

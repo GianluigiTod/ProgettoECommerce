@@ -47,7 +47,7 @@ public class OrdineService {
                 throw new IllegalStateException();
             }
 
-            return ordineRepository.findOrdineByUtenteId(id);
+            return ordineRepository.findOrdineByUtenteIdOrderByDataOrdineDesc(id);
         }else{
             throw new IllegalArgumentException();
         }
@@ -101,10 +101,15 @@ public class OrdineService {
                 throw new IllegalArgumentException("Il CartItem "+id+" non esiste.");
             }
         }
+        //Per fare in modo di prendere il primo elemento della lista di cartItem e poter ottenere l'oggetto utente e il suo username
+        // dato che saranno uguali per ciascun cartItem
         Optional<CartItem> optionalCartItem = cartItems.stream().findFirst();
         CartItem cartItem = optionalCartItem.orElseThrow(() -> new IllegalArgumentException("Nessun CartItem specificato."));
         Utente utente = cartItem.getUtente();
         String username = utente.getUsername();
+        if (!username.equals(Utils.getUser())) {
+            throw new IllegalStateException();
+        }
         for(CartItem c : cartItems){
             if(!c.getUtente().getUsername().equals(username)){
                 throw new IllegalArgumentException("I cartItem che hai specificato non appartengono tutti allo stesso utente.");
@@ -127,27 +132,20 @@ public class OrdineService {
                     card.setQuantity(newQuantity);
                     cardRepository.save(card);
                 }else{
-                    // Recupera tutti i CartItem associati alla carta
                     List<CartItem> carrello = cartItemRepository.findByOriginalCardId(card.getId());
 
-                    // Notifica agli utenti che hanno la carta nel carrello
                     for (CartItem item : carrello) {
                         Utente u = item.getUtente();
                         notificationService.notifyUserAboutDeletedCard(u, card);
                     }
                     cardRepository.delete(card);
                     imageService.eliminaImmagine(card.getImagePath());
-
                 }
             }else{
                 throw new QuantityProblem();
             }
         }
-        if (!username.equals(Utils.getUser())) {
-            throw new IllegalStateException();
-        }
 
-        // Ottenere la data corrente e formattarla come stringa
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dataOrdine = now.format(formatter);

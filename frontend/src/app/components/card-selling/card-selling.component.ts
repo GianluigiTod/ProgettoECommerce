@@ -173,7 +173,7 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
 
   updateCard(card: any): void {
     if (!card.name || !card.prezzo || !card.rarity || !card.quantity) {
-      this.dialog.open(MessageComponent, { data: { message: "I campi 'name', 'prezzo' e 'rarity' sono obbligatori." } });
+      this.dialog.open(MessageComponent, { data: { message: "I campi 'Nome', 'Prezzo' , 'Rarità' e 'Quantità' sono obbligatori." } });
       return;
     }
 

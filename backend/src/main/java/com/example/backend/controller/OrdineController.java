@@ -46,22 +46,21 @@ public class OrdineController {
         }catch(QuantityProblem e){
             return new ResponseEntity<>("La quantità di un cartItem non può essere più grande di quella della carta a cui è legato.",HttpStatus.BAD_REQUEST);
         }catch(ImageNotFound e){
-            return new ResponseEntity<>("L'immagine relativa a una delle carte che hai acquistato non è stata trovata", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("L'immagine relativa a una delle carte che hai acquistato non è stata trovata.", HttpStatus.NOT_FOUND);
         }
     }
 
-    //imposta a prescindere il valore arrivato a true
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateOrdine(@PathVariable Long id){
         try {
             boolean arrivato = ordineService.setArrivato(id);
             if(arrivato) {
-                return new ResponseEntity<>("Conferma arrivo ordine avvenuta con successo", HttpStatus.OK);
+                return new ResponseEntity<>("Conferma arrivo ordine avvenuta con successo.", HttpStatus.OK);
             }else{
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }catch (IllegalStateException e){
-            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.",HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -70,12 +69,12 @@ public class OrdineController {
         try{
             boolean isDeleted = ordineService.deleteOrdine(id);
             if(isDeleted){
-                return new ResponseEntity<>("Cancellazzione avvenuta con successo", HttpStatus.OK);
+                return new ResponseEntity<>("Cancellazione avvenuta con successo.", HttpStatus.OK);
             }else{
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }catch(IllegalStateException e){
-            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("L'utente che hai specificato non è lo stesso con cui hai fatto il login.",HttpStatus.BAD_REQUEST);
         }
     }
 

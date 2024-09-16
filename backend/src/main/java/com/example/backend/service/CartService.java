@@ -26,6 +26,7 @@ public class CartService {
 
     @Autowired
     private CardRepository cardRepository;
+
     @Autowired
     private UtenteRepository utenteRepository;
 
@@ -52,14 +53,12 @@ public class CartService {
                     if(verifiche.get("changes")){
                         notificationMessage.append(String.format("La carta %s è stata modificata.\n", cartItem.getCardSnapshot().getName()));
 
-                        // Aggiorna il cardSnapshot nel cartItem
                         updateCardSnapshot(cartItem, cartItem.getOriginalCard());
                     }
 
                     if(verifiche.get("quantityChanges")){
                         notificationMessage.append(String.format("La quantità della carta %s non è più sufficiente", cartItem.getCardSnapshot().getName()));
 
-                        //Aggiorna la quantità del cartItem
                         cartItem.setQuantity(cartItem.getOriginalCard().getQuantity());
                     }
 
@@ -79,7 +78,7 @@ public class CartService {
         }
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void updateCardSnapshot(CartItem cartItem, Card originalCard) {
         CardSnapshot snapshot = cartItem.getCardSnapshot();
         snapshot.setName(originalCard.getName());
@@ -100,7 +99,6 @@ public class CartService {
                 !originalCard.getSetCode().equals(cardSnapshot.getSetCode()) ||
                 !originalCard.getRarity().equals(cardSnapshot.getRarity());
 
-        //Per verificare che la quantità sia ancora sufficiente
         boolean quantityChanges = cartItem.getQuantity() > originalCard.getQuantity();
 
         verifiche.put("changes", changes);
@@ -128,15 +126,12 @@ public class CartService {
                         throw new QuantityProblem();
                     }
 
-
-                    // Crea un CardSnapshot basato sulla carta corrente
                     CardSnapshot cardSnapshot = new CardSnapshot();
                     cardSnapshot.setName(card.getName());
                     cardSnapshot.setSetCode(card.getSetCode());
                     cardSnapshot.setUsernameVenditore(card.getUsernameVenditore());
                     cardSnapshot.setSnapCardId(card.getId());
                     cardSnapshot.setRarity(card.getRarity());
-
 
                     Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
                     if (existingCartItem.isPresent()) {
@@ -163,7 +158,7 @@ public class CartService {
             }
         }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public CartItem updateCartItem(Long id, int quantity) throws QuantityProblem{
         Optional<CartItem> cartItemOptional = cartItemRepository.findById(id);
         if (cartItemOptional.isPresent()) {
@@ -183,7 +178,7 @@ public class CartService {
         return null;
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public boolean deleteCartItem(Long id) {
         Optional<CartItem> cartItemOptional = cartItemRepository.findById(id);
         if (cartItemOptional.isPresent()) {
@@ -191,7 +186,6 @@ public class CartService {
             String username = cartItem.getUtente().getUsername();
             if(!username.equals(Utils.getUser()))
                 throw new IllegalStateException();
-
             cartItemRepository.delete(cartItem);
             return true;
         }

@@ -35,7 +35,7 @@ public class SpringSecurityConfig {
                 .cors(cors-> {
                     CorsConfigurationSource source = request -> {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Modifica con l'origine corretta
+                        config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
                         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
                         config.setExposedHeaders(Arrays.asList("Authorization"));
@@ -71,8 +71,8 @@ public class SpringSecurityConfig {
         configuration.addAllowedHeader("Access-Control-Allow-Headers");
         configuration.addAllowedHeader("Access-Control-Allow-Origin");
         configuration.addAllowedHeader("Access-Control-Allow-Methods");
-        configuration.addExposedHeader("Authorization"); // Allowing specific headers to be exposed to the client
-        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
+        configuration.addExposedHeader("Authorization");
+        configuration.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", configuration);
         return new CorsFilter(source);
     }

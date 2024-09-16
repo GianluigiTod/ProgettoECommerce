@@ -2,10 +2,11 @@ package com.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -16,9 +17,11 @@ public class Utente {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank
     private String username;
 
     @Column(nullable = false)
+    @NotBlank
     private String password;
 
 
@@ -33,22 +36,25 @@ public class Utente {
 
 
     @Column(nullable = false, unique = true)
+    @NotBlank
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Ruolo ruolo;
 
 
-    // Relazione con l'entità Card
     @OneToMany(mappedBy = "venditore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cards;
 
 
-    // Relazione con CartItem
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems;
 
-    //Relazione con Ordine
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ordine> listaOrdini;
+
+    @Version
+    @JsonIgnore
+    private Long version;
 }

@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.exception.ImageNotFound;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.backend.model.InfoImmagine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -21,45 +21,35 @@ import java.util.UUID;
 public class ImageService {
 
     @Value("${image.upload.dir}")
-    private String imageUploadDir;  // Directory dove le immagini sono salvate
+    private String imageUploadDir;
 
-    public ResponseEntity<?> ottieniImmagine(String filename){
+    public InfoImmagine ottieniImmagine(String filename) throws ImageNotFound, IOException {
         File file = Paths.get(imageUploadDir, filename).toFile();
         if (file.exists()) {
-            try {
-                // Determina il tipo MIME del file
-                Path filePath = file.toPath();
-                String contentType = Files.probeContentType(filePath);
+            Path filePath = file.toPath();
+            String contentType = Files.probeContentType(filePath);
 
-                if (contentType == null) {
-                    contentType = "application/octet-stream";  // Tipo predefinito se non trovato
-                }
-
-                FileSystemResource resource = new FileSystemResource(file);
-                //inviamo l'immagine con il relativo content-type nell'header
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_TYPE, contentType)
-                        .body(resource);
-
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving file type");
+            if (contentType == null) {
+                contentType = "application/octet-stream";  // Tipo predefinito se non trovato
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
+            FileSystemResource resource = new FileSystemResource(file);
+
+            return new InfoImmagine(resource, contentType);
+        }else{
+            throw new ImageNotFound();
         }
     }
 
     public String creaImmagine(MultipartFile file) throws IOException {
         String fileName=null;
         if (file == null || file.isEmpty()) {
-            // Usa un'immagine di default se il file è vuoto
-            fileName = "/immagine_mancante.jpg"; // File già esistente nella directory
+            fileName = "/immagine_mancante.jpg";
         } else {
             // Genera un nome unico per il file
             fileName = "/"+ UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path path = Paths.get(imageUploadDir, fileName);
-            Files.createDirectories(path.getParent());  // Crea la directory se non esiste
-            Files.write(path, file.getBytes());  // Salva il file
+            Files.createDirectories(path.getParent());
+            Files.write(path, file.getBytes());
         }
         return fileName;
     }

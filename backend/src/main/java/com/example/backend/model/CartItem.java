@@ -30,13 +30,11 @@ public class CartItem {
     @JoinColumn(name = "card_id", nullable=false)
     private Card originalCard;
 
-    // Aggiunta di una copia della carta "congelata"
     @Embedded
     private CardSnapshot cardSnapshot;
 
-
     @Version
     @JsonIgnore
-    private Long version;  // Lock ottimistico
+    private Long version;
 
 }

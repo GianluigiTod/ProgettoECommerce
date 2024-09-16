@@ -31,7 +31,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   errorMessage: string = '';
   username: string = '';
   token: string = '';
-  selectedQuantity: number = 1;
+  selectedQuantity: { [key: number]: number } = {};
   currentSortField: string = 'name';
   sortDirection: string = 'asc';
 
@@ -84,6 +84,9 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       if (this.paginator) {
         this.paginator.length = this.totalCards;
       }
+      this.cards.forEach(card => {
+        this.selectedQuantity[card.id] = 1;
+      })
       this.loadSetCodes();
       this.loadImageUrls();
     }, error => {
@@ -133,14 +136,14 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   }
 
   addToCart(card: any): void {
-    if (this.selectedQuantity > 0 && this.selectedQuantity <= card.quantity) {
+    if (this.selectedQuantity[card.id] > 0 && this.selectedQuantity[card.id] <= card.quantity) {
       this.getUser(this.username, this.token).subscribe(
         (user) => {
           const userId = user.id;
           const cartDTO = {
             utenteId: userId,
             cardId: card.id,
-            quantity: this.selectedQuantity,
+            quantity: this.selectedQuantity[card.id],
           };
 
           this.http.post<any>(`${API.backend}/api/cart/add`, cartDTO, {

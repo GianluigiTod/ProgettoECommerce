@@ -4,7 +4,10 @@ import com.example.backend.config.KeycloakConfig;
 import com.example.backend.config.Utils;
 import com.example.backend.exception.UtenteEsistente;
 import com.example.backend.exception.UtenteInesistente;
+import com.example.backend.model.Card;
+import com.example.backend.model.CartItem;
 import com.example.backend.model.Utente;
+import com.example.backend.repository.CartItemRepository;
 import com.example.backend.repository.UtenteRepository;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
@@ -32,64 +35,95 @@ public class UtenteService  {
     @Autowired
     private UtenteRepository utenteRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
     @Transactional(readOnly = false)
     public Utente registra(Utente u) throws UtenteEsistente {
         if(utenteRepository.findUtenteByUsername(u.getUsername()).isPresent())
             throw new UtenteEsistente();
         addKeyCloak(u);
         assignClientRoleToUser(u.getUsername(), u.getRuolo().name());//per assegnargli il ruolo
+        //per non avere problemi con keycloack, salvo gli username sempre minuscoli
         u.setUsername(u.getUsername().toLowerCase());
-        return utenteRepository.save(u);
+
+        Utente ret = utenteRepository.save(u);
+        notificationService.notifyUserAboutAccountCreation(ret);
+        return ret;
     }
 
-    @Transactional(readOnly = false)
-    public boolean cancellaUtente(Long id){
+    @Transactional
+    public void cancellaUtente(Long id) throws UtenteInesistente {
         Optional<Utente> utente = utenteRepository.findById(id);
         if(utente.isPresent()){
             Utente u = utente.get();
+            String username=u.getUsername();
             if(!u.getUsername().equals(Utils.getUser()))
                 throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+            if(!u.getCards().isEmpty()){
+                for(Card card: u.getCards()){
+                    for(CartItem cartItem : cartItemRepository.findByOriginalCardId(card.getId())){
+                        notificationService.notifyUserAboutDeletedCard(cartItem.getUtente(), cartItem.getOriginalCard());
+                    }
+                }
+            }
+            String email = u.getEmail();
+            String nome = u.getNome();
             utenteRepository.delete(u);
-            deleteKeycloak(u);
-            return true;
+            deleteKeycloak(username);
+            notificationService.notifyUserAboutAccountDeletion(email, nome);
         }else{
-            return false;
+            throw new UtenteInesistente();
         }
     }
 
-    @Transactional(readOnly=false)
+    @Transactional
     public Utente modificaInfo(Utente u) throws UtenteInesistente, UtenteEsistente {
-        if(!u.getUsername().equals(Utils.getUser()))
-            throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
-        Optional<Utente> utente = utenteRepository.findUtenteById(u.getId());//l'id dell'utente che creerò nel frontend dovrà essere uguale all'id di un utente già esistente
+        Optional<Utente> utente = utenteRepository.findUtenteById(u.getId());
         if(utente.isPresent()){
             Utente utente_precedente = utente.get();
-            if(u.getUsername() != null){
+            String usernamePrecedente = utente_precedente.getUsername();
+            if(!utente_precedente.getUsername().equals(Utils.getUser())) {
+                throw new IllegalStateException("L'utente che hai specificato non è lo stesso con cui hai fatto il login");
+            }
+            boolean changes=false;
+            if(!u.getUsername().equals(utente_precedente.getUsername())){
+                usernamePrecedente = utente_precedente.getUsername().toLowerCase();
                 utente_precedente.setUsername(u.getUsername());
+                changes=true;
             }
-            if(u.getEmail() != null){
+            if(!u.getEmail().equals(utente_precedente.getEmail())){
                 utente_precedente.setEmail(u.getEmail());
+                changes=true;
             }
-            if(u.getNome() != null){
+            if(!u.getNome().equals(utente_precedente.getNome())){
                 utente_precedente.setNome(u.getNome());
+                changes=true;
             }
-            if(u.getPassword() != null && !utente_precedente.getPassword().equals(u.getPassword())){
+            if(!u.getPassword().equals(utente_precedente.getPassword())){
                 utente_precedente.setPassword(u.getPassword());
-            }else if (!utente_precedente.getPassword().equals(u.getPassword())){
-                throw new IllegalArgumentException("La password è uguale a quella precedente.");
+                changes=true;
             }
-            if(u.getIndirizzo() != null){
+            if(!u.getIndirizzo().equals(utente_precedente.getIndirizzo())){
                 utente_precedente.setIndirizzo(u.getIndirizzo());
             }
-            if(u.getCognome() != null){
+            if(!u.getCognome().equals(utente_precedente.getCognome())){
                 utente_precedente.setCognome(u.getCognome());
+                changes=true;
             }
-            if(u.getRuolo() != null){
+            if(!u.getRuolo().equals(utente_precedente.getRuolo())){
                 utente_precedente.setRuolo(u.getRuolo());
+                changes=true;
             }
-            deleteKeycloak(utente_precedente);
-            addKeyCloak(utente_precedente);//verifica se la modifica funziona, ho appena cambiato u con utente_precedente qui
-            return utenteRepository.save(utente_precedente);//e qui
+            if(changes){
+                deleteKeycloak(usernamePrecedente);
+                addKeyCloak(utente_precedente);
+                assignClientRoleToUser(utente_precedente.getUsername(), utente_precedente.getRuolo().toString());
+            }
+            return utenteRepository.save(utente_precedente);
         }else{
             throw new UtenteInesistente();
         }
@@ -113,7 +147,15 @@ public class UtenteService  {
     private void addKeyCloak(Utente utente) throws UtenteEsistente {
         Keycloak keycloak = KeycloakConfig.getInstance();
 
-        // Define user
+        RealmResource realmResource = keycloak.realm(KeycloakConfig.realm);
+        UsersResource usersResource = realmResource.users();
+
+        List<UserRepresentation> existingUsers = usersResource.search(utente.getUsername(), true);
+        if (!existingUsers.isEmpty()) {
+            throw new UtenteEsistente();
+        }
+
+        //Qui definisco l'utente
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setUsername(utente.getUsername());
@@ -122,12 +164,6 @@ public class UtenteService  {
         user.setLastName(utente.getCognome());
         user.setCredentials(Collections.singletonList(createPasswordCredentials(utente.getPassword())));
         user.setEmailVerified(true);
-
-
-
-        //Get realm
-        RealmResource realmResource = keycloak.realm(KeycloakConfig.realm);
-        UsersResource usersResource = realmResource.users();
 
 
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
@@ -142,15 +178,13 @@ public class UtenteService  {
         if (response.getStatus() == 201) {
             System.out.println("Utente creato con successo.");
         } else {
-            System.err.println("Failed to create user. HTTP error code: " + response.getStatus());
-            System.err.println("Error message: " + response.getStatusInfo().getReasonPhrase());
+            System.err.println("Utente non creato. HTTP error code: " + response.getStatus());
+            System.err.println("Messaggio di errore: " + response.getStatusInfo().getReasonPhrase());
             if (response.hasEntity())
-                System.err.println("Error details: " + response.readEntity(String.class));
-
+                System.err.println("Dettagli dell'errore: " + response.readEntity(String.class));
             response.close();
             throw new IllegalStateException("Creazione dell'utente su keycloack non è andata a buon fine.");
         }
-
 
     }
 
@@ -162,23 +196,20 @@ public class UtenteService  {
         return passwordCredentials;
     }
 
-    private void deleteKeycloak(Utente u) {
+    private void deleteKeycloak(String username) throws UtenteInesistente{
         Keycloak keycloak = KeycloakConfig.getInstance();
-        List<UserRepresentation> users = keycloak.realm("master").users().search(u.getUsername());
+        List<UserRepresentation> users = keycloak.realm("master").users().search(username);
 
         if (users.isEmpty()) {
-            System.out.println("Nessun utente trovato con username: " + u.getUsername());
-            return; // O gestisci il caso come appropriato
+            throw new UtenteInesistente();
         }
 
-        // Supponiamo che ci sia solo un utente con il username fornito
-        // In caso contrario, potresti voler gestire una lista di utenti
-        UserRepresentation user = users.get(0); // Prendi il primo utente
+        UserRepresentation user = users.get(0);
 
         try {
             String userId = user.getId();
             keycloak.realm("master").users().get(userId).remove();
-            System.out.println("Utente eliminato con successo: " + u.getUsername());
+            System.out.println("Utente eliminato con successo: " + username);
         } catch (Exception e) {
             System.err.println("Errore durante l'eliminazione dell'utente: " + e.getMessage());
         }
@@ -200,20 +231,20 @@ public class UtenteService  {
         UserResource userResource = usersResource.get(userId);
 
 
-        //getting client
+        //per ottenere il cliente
         ClientRepresentation clientRepresentation = keycloak.realm(realm).clients().findAll().stream().filter(client -> client.getClientId().equals("my-app-client")).collect(Collectors.toList()).get(0);
         System.out.println("clientRepresentation: "+ clientRepresentation);
         System.out.println("ruolo: "+role);
         System.out.println("id: "+userId);
 
         ClientResource clientResource = keycloak.realm(realm).clients().get(clientRepresentation.getId());
-        //getting role
+
+        //per ottenere il ruolo nella lista di ruoli del client
         RoleRepresentation roleRepresentation = clientResource.roles().list().stream().filter(element -> element.getName().equals(role)).collect(Collectors.toList()).get(0);
         System.out.println("roleRepresentation: "+ roleRepresentation);
-        //assigning to user
+
+        //per assegnare il ruolo all'utente
         userResource.roles().clientLevel(clientRepresentation.getId()).add(Collections.singletonList(roleRepresentation));
-
-
     }
 
 

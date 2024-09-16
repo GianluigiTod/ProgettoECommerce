@@ -8,20 +8,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findCardById(Long id);
 
-    // Query per trovare le carte per setCode
     Page<Card> findBySetId(Long setId, Pageable pageable);
 
-    // Query per trovare le carte per username del venditore
     Page<Card> findByVenditoreId(Long venditoreId, Pageable pageable);
 
-    // Query per cercare le carte per nome o parte del nome
-    Page<Card> findByNameContaining(String name, Pageable pageable);
+    @Query("SELECT c FROM Card c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    Page<Card> searchByName(@Param("name") String name, Pageable pageable);
 
     @Query("SELECT c FROM Card c WHERE c.venditore = :venditore AND c.set = :set AND c.prezzo = :prezzo AND c.rarity = :rarity")
     Optional<Card> findByData(@Param("venditore") Utente venditore, @Param("set") Set set, @Param("prezzo") float prezzo, @Param("rarity") Card.Rarity rarity);

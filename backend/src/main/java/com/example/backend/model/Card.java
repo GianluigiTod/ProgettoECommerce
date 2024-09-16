@@ -2,7 +2,10 @@ package com.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.util.Set;
 
@@ -17,9 +20,13 @@ public class Card {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String name;
+
     @Column(nullable = false)
+    @NotBlank
     private float prezzo;
+
     @Column(name="venditore_username")
     private String usernameVenditore;
 
@@ -27,7 +34,8 @@ public class Card {
     private String type;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)//Verifica se la rarità è effettivamente obbligatoria nel DB
+    @Column(nullable = false)
+    @NotNull
     private Rarity rarity;
 
     @Column(length = 1023)
@@ -43,25 +51,23 @@ public class Card {
     private String imagePath;
 
     @Column(nullable = false)
+    @NotBlank
     private int quantity;
 
     @Version
     @JsonIgnore
     private Long version;
 
-    // Associazione con Utente usando il campo username_venditore
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "venditore_id", nullable = false)
     private Utente venditore;
 
-
-    // Associazione con Set usando il campo setCode
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "set_id", nullable = false)
     private com.example.backend.model.Set set;
-
 
 
     @OneToMany(mappedBy = "originalCard", cascade = CascadeType.REMOVE, orphanRemoval = true)
