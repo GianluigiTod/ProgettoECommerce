@@ -58,21 +58,20 @@
 }
 
 .view-button {
-  background-color: #1976d2; /* Colore blu scuro */
-  color: white; /* Testo bianco */
+  background-color: #1976d2;
+  color: white;
   border-radius: 4px;
   font-weight: bold;
 }
 
 .view-button:hover {
-  background-color: #1565c0; /* Blu leggermente più scuro al passaggio del mouse */
+  background-color: #1565c0;
 }
 
 .view-button:active {
-  background-color: #0d47a1; /* Ancora più scuro al click */
+  background-color: #0d47a1;
 }
 
-/* CSS per il blocchetto di selezione della quantità */
 .quantity-selector {
   display: flex;
   align-items: center;
@@ -101,17 +100,16 @@
   background-color: #e0e0e0;
 }
 
-/* Testo "su" accanto al numero */
 .quantity-info {
   font-size: 16px;
   font-weight: bold;
   margin-left: 8px;
 }
 
-/* CSS per il bottone "Add to Cart" con testo e icona */
+
 .add-to-cart-button {
-  background-color: #ffcc00; /* Giallo scuro */
-  color: #fff; /* Testo e icona bianchi */
+  background-color: #ffcc00;
+  color: #fff;
   font-weight: bold;
   border: none;
   border-radius: 4px;
@@ -123,18 +121,16 @@
 }
 
 .add-to-cart-button:hover {
-  background-color: #cc9900; /* Giallo più scuro al passaggio del mouse */
+  background-color: #cc9900;
 }
 
 .add-to-cart-button mat-icon {
-  color: #fff; /* Icona del carrello bianca */
+  color: #fff;
   font-size: 20px;
 }
 
 
 
-
-/* Messaggio di errore */
 .error-message {
   color: #d9534f;
   background-color: #f2dede;

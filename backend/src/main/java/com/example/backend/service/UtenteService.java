@@ -43,6 +43,9 @@ public class UtenteService  {
 
     @Transactional(readOnly = false)
     public Utente registra(Utente u) throws UtenteEsistente {
+        if(u.getUsername().isBlank() || u.getPassword().isBlank() || u.getEmail().isBlank()){
+            throw new IllegalArgumentException();
+        }
         if(utenteRepository.findUtenteByUsername(u.getUsername()).isPresent())
             throw new UtenteEsistente();
         addKeyCloak(u);
@@ -82,6 +85,9 @@ public class UtenteService  {
 
     @Transactional
     public Utente modificaInfo(Utente u) throws UtenteInesistente, UtenteEsistente {
+        if(u.getUsername().isBlank() || u.getPassword().isBlank() || u.getEmail().isBlank()){
+            throw new IllegalArgumentException();
+        }
         Optional<Utente> utente = utenteRepository.findUtenteById(u.getId());
         if(utente.isPresent()){
             Utente utente_precedente = utente.get();

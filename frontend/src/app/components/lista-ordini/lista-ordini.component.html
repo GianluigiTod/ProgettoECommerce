@@ -1,14 +1,15 @@
 <div class="order-list">
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+  <!-- Per mostrare la lista di ordini non ancora arrivati -->
   <h2>Ordini Non Arrivati</h2>
   <mat-card *ngFor="let ordine of ordiniNonArrivati" class="order-card">
     <mat-card-header>
       <mat-card-title>Ordine ID: {{ ordine.id }}</mat-card-title>
-      <mat-card-title>Data: {{ ordine.dataOrdine }}</mat-card-title>
+      <mat-card-title>Data: {{ ordine.dataOrdine | date:'dd/MM/yyyy HH:mm:ss' }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR' }}</p>
+      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR':'symbol' }}</p>
       <div class="order-actions">
         <button mat-raised-button color="primary" (click)="visualizzaDettagliOrdine(ordine.id)">Visualizza Dettagli</button>
         <button mat-raised-button color="accent" (click)="confermaArrivo(ordine.id)">Arrivato</button>
@@ -16,14 +17,15 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Per mostrare la lista di ordini già arrivati -->
   <h2>Ordini Arrivati</h2>
   <mat-card *ngFor="let ordine of ordiniArrivati" class="order-card">
     <mat-card-header>
       <mat-card-title>Ordine ID: {{ ordine.id }}</mat-card-title>
-      <mat-card-title>Data: {{ ordine.dataOrdine }}</mat-card-title>
+      <mat-card-title>Data: {{ ordine.dataOrdine | date:'dd/MM/yyyy HH:mm:ss' }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR' }}</p>
+      <p><strong>Prezzo Totale:</strong> {{ ordine.prezzoTotale | currency:'EUR':'symbol' }}</p>
       <div class="order-actions">
         <button mat-raised-button color="primary" (click)="visualizzaDettagliOrdine(ordine.id)">Visualizza Dettagli</button>
         <button mat-raised-button color="warn" (click)="eliminaOrdine(ordine.id)">Elimina Ordine</button>

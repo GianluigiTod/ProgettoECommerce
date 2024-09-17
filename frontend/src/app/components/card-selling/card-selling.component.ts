@@ -24,7 +24,7 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
 
   dataSource = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
-  displayedColumns: string[] = ['name', 'prezzo', 'rarity', 'image', 'actions'];
+  displayedColumns: string[] = ['name', 'prezzo', 'quantity', 'rarity', 'image', 'actions'];
   rarities: string[] = ['comune', 'non_comune', 'rara', 'rara_mitica'];
   cards: any[] = [];
   imageUrls: { [key: number]: string } = {};
@@ -161,6 +161,12 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
     this.selectedFile=null;
     this.selectedCard=card;
     this.cancelCreate();
+    setTimeout(() => {
+      const element = document.getElementById('edit-card-container');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
   cancelEdit(): void {
@@ -188,12 +194,11 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
       power: card.power,
       toughness: card.toughness,
       quantity: card.quantity,
-      usernameVenditore: card.usernameVenditore,//Da qui in poi penso siano campi necessari altrimenti il metodo nel controller non accetta il json
+      usernameVenditore: card.usernameVenditore,
       setCode: card.setCode,
       imagePath: card.imagePath,
     };
 
-    console.log(updatedCard);
     this.http.put<any>(API.backend + `/api/card/update`, updatedCard, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
     }).subscribe(
@@ -221,7 +226,7 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
       (response) => {
         this.dialog.open(MessageComponent, { data: { message: "Immagine aggiornata con successo." } });
         this.errorMessage='';
-        this.getCards(this.currentPage); // Ricarica la lista delle carte
+        this.getCards(this.currentPage);
       },
       (error) => {
         this.handleError(error, "Si è verificato un errore durante l'aggiornamento dell'immagine.");
@@ -233,12 +238,12 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
   deleteCard(cardId: number): void {
     this.isEditing=false;
     this.isCreating=false;
-    this.http.delete<any>(API.backend + `/api/card/delete/${cardId}`, {
+    this.http.delete(API.backend + `/api/card/delete/${cardId}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as 'json' // Specifica che la risposta è di tipo testo
+      responseType: 'text'
     }).subscribe(
       (response) => {
-        this.dialog.open(MessageComponent, { data: { message: "Carta eliminata con successo." } });
+        this.dialog.open(MessageComponent, { data: { message: response } });
         this.errorMessage='';
         this.getCards(this.currentPage);
       },
@@ -277,7 +282,6 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
 
   createCard(): void {
     var card = this.newCard;
-    console.log(card.rarity, this.newCardSetCode);
     if (!card.name || !card.prezzo || !card.rarity || !card.quantity) {
       this.dialog.open(MessageComponent, { data: { message: "I campi 'name', 'prezzo' e 'rarity' sono obbligatori." } });
       return;
@@ -300,6 +304,7 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
         this.errorMessage='';
         this.isCreating=false;
         this.getCards(this.currentPage);
+        this.errorMessage='';
       },
       (error) => {
         this.handleError(error, "Errore durante la creazione della carta.");
@@ -307,10 +312,7 @@ export class CardSellingComponent implements OnInit, AfterViewInit {
     );
   }
 
-
-
   private handleError(error: any, defaultMessage: string): void {
-    console.log(error);
     if (error.error && typeof error.error === 'string') {
       this.getCards();
       this.errorMessage = error.error;

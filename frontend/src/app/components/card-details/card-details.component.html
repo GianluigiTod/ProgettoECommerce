@@ -1,11 +1,19 @@
 <div class="card-details-container">
   <div class="card-header">
-    <h1 class="card-name">{{ card?.name }}</h1>
+    <div class="set-image-container">
+      <img *ngIf="setImageUrl" [src]="setImageUrl" alt="{{ set?.setName }}" class="set-image"/>
+    </div>
+    <div class="card-name-container">
+      <h1 class="card-name">{{ card?.name }}</h1>
+      <p class="set-name"><strong>Nome del Set:</strong> {{ set?.setName }}</p>
+    </div>
   </div>
+
+  <div class="error-message" *ngIf="errorMessage"><p>{{ errorMessage }}</p></div>
 
   <div class="card-content">
     <div class="card-image-container">
-      <img *ngIf="imageUrl" [src]="imageUrl" alt="{{ card?.name }}" class="card-image"/>
+      <img *ngIf="cardImageUrl" [src]="cardImageUrl" alt="{{ card?.name }}" class="card-image"/>
     </div>
 
     <div class="card-info">
@@ -26,7 +34,4 @@
     <p>{{ card?.text }}</p>
   </div>
 
-  <div class="error-message" *ngIf="errorMessage">
-    <p>{{ errorMessage }}</p>
-  </div>
 </div>

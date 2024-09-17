@@ -32,6 +32,33 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+                .cors(cors -> {
+                    CorsConfigurationSource source = request -> {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8280"));
+                        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                        config.setExposedHeaders(Arrays.asList("Authorization"));
+                        config.setAllowCredentials(true);
+                        return config;
+                    };
+                    cors.configurationSource(source);
+                })
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(antMatcher("/api/user/register")).permitAll()
+                        .requestMatchers(antMatcher("/api/images/**")).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(STATELESS));
+        return http.build();
+    }
+
+
+    /*
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
                 .cors(cors-> {
                     CorsConfigurationSource source = request -> {
                         CorsConfiguration config = new CorsConfiguration();
@@ -53,6 +80,10 @@ public class SpringSecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(STATELESS));
         return http.build();
     }
+
+
+
+
 
     @Bean
     public CorsFilter corsFilter() {
@@ -76,6 +107,8 @@ public class SpringSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return new CorsFilter(source);
     }
+
+     */
 
 
 

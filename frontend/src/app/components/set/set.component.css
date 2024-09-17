@@ -29,7 +29,6 @@ th, td {
   margin-bottom: 20px;
 }
 
-/* Stile per la sezione di creazione del set */
 .create-set-container {
   padding: 16px;
   border: 1px solid #ddd;
@@ -62,7 +61,6 @@ th, td {
   margin-left: 8px;
 }
 
-/* Nascondi la sezione di creazione set per i non-admin */
 .admin-only {
   display: none;
 }
@@ -71,7 +69,6 @@ th, td {
   display: block;
 }
 
-/* Stile per il bottone "Crea Set" */
 .create-set-button {
   margin: 16px 0;
 }
@@ -98,30 +95,30 @@ th, td {
 }
 
 input[type="file"] {
-  display: none; /* Nascondi l'input di tipo file */
+  display: none;
 }
 
 .file-label {
   display: inline-block;
-  padding: 10px 16px; /* Simile ai pulsanti Angular Material */
+  padding: 10px 16px;
   cursor: pointer;
-  background-color: #3f51b5; /* Colore simile ai pulsanti 'primary' */
-  color: #ffffff; /* Testo bianco come nei pulsanti 'primary' */
+  background-color: #3f51b5;
+  color: #ffffff;
   border-radius: 4px;
   border: none;
   margin-top: 8px;
-  margin-right: 16px; /* Spostamento verso sinistra */
+  margin-right: 16px;
   text-align: center;
   font-size: 14px;
-  font-weight: 500; /* Simile ai pulsanti Angular Material */
+  font-weight: 500;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 3px 1px -2px rgba(0, 0, 0, 0.2),
-  0 1px 5px 0 rgba(0, 0, 0, 0.12); /* Simile all'ombra dei pulsanti */
+  0 1px 5px 0 rgba(0, 0, 0, 0.12);
   transition: background-color 0.3s;
 }
 
 .file-label:hover {
-  background-color: #303f9f; /* Colore di hover simile */
+  background-color: #303f9f;
 }
 
 
@@ -133,14 +130,12 @@ input[type="file"] {
 }
 
 .set-image {
-  width: 100px; /* Modifica la larghezza come necessario */
+  width: 100px;
   height: auto;
-  object-fit: cover; /* Mantiene le proporzioni e taglia l'immagine se necessario */
+  object-fit: cover;
 }
 
 
-
-/* Messaggio di errore */
 .error-message {
   color: #d9534f;
   background-color: #f2dede;

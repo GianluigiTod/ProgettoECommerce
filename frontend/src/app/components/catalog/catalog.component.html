@@ -2,13 +2,13 @@
 
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Search Bar for Card Name -->
+  <!-- Barra di ricerca per le carte -->
   <mat-form-field appearance="fill">
     <mat-label>Ricerca per nome della carta</mat-label>
     <input matInput (keyup)="searchCards($event)" placeholder="Inserisci il nome della carta">
   </mat-form-field>
 
-  <!-- Dropdown for Set Code -->
+  <!-- Per selezionare il set delle carte che si vogliono visualizzare -->
   <mat-form-field appearance="fill">
     <mat-label>Seleziona il codice del set</mat-label>
     <mat-select [(value)]="selectedSetCode" (selectionChange)="getCardsBySetCode($event.value)">
@@ -18,7 +18,7 @@
     </mat-select>
   </mat-form-field>
 
-  <!-- Sorting Buttons -->
+  <!-- Bottoni per l'ordinamento delle carte -->
   <div class="sorting-buttons">
     <button mat-button (click)="toggleSort('name')">
       Nome
@@ -34,33 +34,27 @@
     </button>
   </div>
 
-  <!-- Table for Displaying Cards -->
+  <!-- Sezione dove mostro i dati delle carte -->
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-    <!-- Name Column -->
+    <!-- Colonna per i nomi -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef> Nome </th>
       <td mat-cell *matCellDef="let card"> {{card.name}} </td>
     </ng-container>
 
-    <!-- Rarity Column -->
+    <!-- Colonna per le rarità -->
     <ng-container matColumnDef="rarity">
       <th mat-header-cell *matHeaderCellDef> Rarità </th>
       <td mat-cell *matCellDef="let card"> {{card.rarity}} </td>
     </ng-container>
 
-    <!-- Price Column -->
+    <!-- Colonna per i prezzi -->
     <ng-container matColumnDef="price">
       <th mat-header-cell *matHeaderCellDef> Prezzo </th>
       <td mat-cell *matCellDef="let card"> {{card.prezzo | currency:'EUR':'symbol'}} </td>
     </ng-container>
 
-    <!-- Quantity Column -->
-    <ng-container matColumnDef="quantity">
-      <th mat-header-cell *matHeaderCellDef> Quantità </th>
-      <td mat-cell *matCellDef="let card"> {{card.quantity}} </td>
-    </ng-container>
-
-    <!-- Image Column -->
+    <!-- Colonna per le immagini -->
     <ng-container matColumnDef="image">
       <th mat-header-cell *matHeaderCellDef> Immagine </th>
       <td mat-cell *matCellDef="let card">
@@ -69,7 +63,7 @@
     </ng-container>
 
 
-    <!-- View Column -->
+    <!-- Colonna per il bottone di View -->
     <ng-container matColumnDef="view">
       <th mat-header-cell *matHeaderCellDef> Azioni </th>
       <td mat-cell *matCellDef="let card">
@@ -77,20 +71,20 @@
       </td>
     </ng-container>
 
-    <!-- Quantity Block Column -->
+    <!-- Colonna per il blocco delle quantità -->
     <ng-container matColumnDef="quantityBlock">
       <th mat-header-cell *matHeaderCellDef> Quantità </th>
       <td mat-cell *matCellDef="let card">
         <div class="quantity-block">
-          <!-- Input for selecting quantity -->
+          <!-- Input per selezionare la quantità -->
           <input type="number" [(ngModel)]="selectedQuantity[card.id]" min="1" max="{{card.quantity}}" style="width: 60px;">
-          <!-- Static display of available quantity -->
+          <!-- Per visualizzare la quantità massima -->
           <span>su {{card.quantity}}</span>
         </div>
       </td>
     </ng-container>
 
-    <!-- Add to Cart Column -->
+    <!-- Colonna per il bottone Add -->
     <ng-container matColumnDef="addToCart">
       <th mat-header-cell *matHeaderCellDef> Add </th>
       <td mat-cell *matCellDef="let card">
@@ -102,12 +96,11 @@
     </ng-container>
 
 
-    <!-- Header and Row Definitions -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 
-  <!-- Pagination Controls -->
+  <!-- Per la paginazione -->
   <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)">
   </mat-paginator>
 </div>

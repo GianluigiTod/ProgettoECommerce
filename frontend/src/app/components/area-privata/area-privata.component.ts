@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from "../../service/auth.service";
-import { MatSnackBar } from '@angular/material/snack-bar';
 import {API} from "../../constants";
 import {MessageComponent} from "../finestraMessaggi/message/message.component";
 import {MatDialog} from "@angular/material/dialog";
@@ -16,7 +15,6 @@ import {MatDialog} from "@angular/material/dialog";
 })
 export class AreaPrivataComponent implements OnInit{
   user: any = {};
-  editableUser: any = {}; // Dati modificabili dall'utente
   username: string
   token: string
   editing: boolean = false;
@@ -51,10 +49,6 @@ export class AreaPrivataComponent implements OnInit{
     return this.http.get(url, { ...options, params: { username } });
   }
 
-  hasChanges(): boolean {
-    return JSON.stringify(this.editableUser) !== JSON.stringify(this.user);
-  }
-
   editUser(): void {
     this.editing = !this.editing;
   }
@@ -69,14 +63,12 @@ export class AreaPrivataComponent implements OnInit{
     const options = {
       headers: new HttpHeaders()
         .set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as "json" //Specifico che mi aspetto di ricevere un testo
+      responseType: 'text' as 'json'
     };
-
     this.http.delete(url, options).subscribe({
       next: () => {
-
+        this.errorMessage='';
         this.authService.logOut();
-
         this.dialog.open(MessageComponent, {
           data: { message: 'Cancellazione avvenuta con successo' }
         });
@@ -98,16 +90,20 @@ export class AreaPrivataComponent implements OnInit{
   }
 
   saveChanges(): void {
+    if(!this.user.username || !this.user.password || !this.user.email || !this.user.ruolo){
+      this.dialog.open(MessageComponent, { data: {message: "I campi 'Username', 'Password', 'Email' e 'Ruolo' sono obbligatori."}});
+      return;
+    }
 
     const updatedUser = {
-      id: this.user.id, // Mantieni l'ID originale per identificare l'utente
-      username: this.editableUser.username || this.user.username, // Usa il valore modificato o quello originale se non è stato modificato
-      password: this.editableUser.password || this.user.password, // Come sopra
-      nome: this.editableUser.nome || this.user.nome,
-      cognome: this.editableUser.cognome || this.user.cognome,
-      indirizzo: this.editableUser.indirizzo || this.user.indirizzo,
-      email: this.editableUser.email || this.user.email,
-      ruolo: this.editableUser.ruolo || this.user.ruolo,
+      id: this.user.id,
+      username: this.user.username,
+      password: this.user.password,
+      nome: this.user.nome,
+      cognome: this.user.cognome,
+      indirizzo: this.user.indirizzo,
+      email: this.user.email,
+      ruolo: this.user.ruolo,
     };
 
     const url = API.backend+`/api/user/update`;
@@ -119,15 +115,21 @@ export class AreaPrivataComponent implements OnInit{
 
     this.http.put(url, updatedUser, options).subscribe({
       next: () => {
-        this.editing = false; // Disabilita la modalità di modifica dopo il salvataggio
-        console.log('Modifiche salvate con successo');
-      },
-      error: (error) => {
-        console.error('Errore durante il salvataggio delle modifiche:', error);
+        this.editUser();
+        this.errorMessage='';
+      }, error: (error) => {
+        this.handleError(error, "Si è verificato un problema durante la modifica.")
       }
     });
+  }
 
-    this.editUser();
+  private handleError(error: any, defaultMessage: string): void {
+    if (error.error && typeof error.error === 'string') {
+      this.errorMessage = error.error;
+      this.dialog.open(MessageComponent, { data: { message: error.error } });
+    } else {
+      this.errorMessage = defaultMessage;
+    }
   }
 
 }

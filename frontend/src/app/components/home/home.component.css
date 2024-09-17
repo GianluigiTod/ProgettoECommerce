@@ -1,4 +1,3 @@
-/* Stile per i dati dell'utente */
 .content {
   padding: 20px;
 }
@@ -26,7 +25,6 @@
   padding: 16px;
 }
 
-/* Messaggio di errore */
 .error-message {
   color: #d9534f;
   background-color: #f2dede;

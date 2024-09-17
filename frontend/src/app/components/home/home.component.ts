@@ -18,8 +18,9 @@ export class HomeComponent implements OnInit {
   orders: any[] = [];
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private http: HttpClient, private dialog: MatDialog) {
-  }
+  constructor(private authService: AuthService,
+              private http: HttpClient,
+              private dialog: MatDialog) {}
 
   private getUser(username: string, token: string): Observable<any> {
     const url = API.backend + '/api/user/get';
@@ -32,22 +33,22 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const token = this.authService.getToken(); // Recupera il token in base al tuo flusso di autenticazione
-    const username = this.authService.getUsername(); // Recupera l'username
+    const token = this.authService.getToken();
+    const username = this.authService.getUsername();
 
 
     this.getUser(username, token).subscribe(user => {
       this.username = user.username;
       this.cartItemsCount = user.cartItems.length;
-      this.cards = user.cards;
+      this.cards = user.cards.slice(0,3);
       this.orders = user.listaOrdini.slice(0, 3);
+      this.errorMessage='';
     }, (error)=>{
       this.handleError(error, "Errore durante la ricerca dell'utente.");
     });
   }
 
   private handleError(error: any, defaultMessage: string): void {
-    console.log(error);
     if (error.error && typeof error.error === 'string') {
       this.errorMessage = error.error;
       this.dialog.open(MessageComponent, { data: { message: error.error } });

@@ -4,12 +4,13 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthService } from './service/auth.service';
-import { DialogService } from './service/dialog.service';
+import {MatDialog} from "@angular/material/dialog";
+import { MessageComponent } from "./components/finestraMessaggi/message/message.component";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private authService:AuthService, private router: Router, private dialog : DialogService) {}
+  constructor(private authService:AuthService, private router: Router, private dialog : MatDialog) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
@@ -19,7 +20,8 @@ export class AuthInterceptor implements HttpInterceptor {
         }
 
         if(error.status === 500){
-          this.dialog.showDialog(error.error.message)
+          const errorMessage = typeof error.error === 'string' ? error.error : 'Errore sconosciuto';
+          this.dialog.open(MessageComponent, {data: { message: errorMessage }});
         }
 
         return throwError(error);//Nel caso sia un qualsiasi altro errore lancialo e basta
@@ -31,14 +33,13 @@ export class AuthInterceptor implements HttpInterceptor {
     return this.authService.refresh().pipe(//utilizzo il metodo refresh per effettuare una richiesta http per ottenere il nuovo token
       switchMap((token: any) => {
         this.authService.setToken(token.access_token);
-        console.log(this.authService.getToken())  ;
         const authRequest = request.clone({setHeaders: {Authorization: `Bearer ${token.access_token}`}});
         return next.handle(authRequest);
       }),
       catchError((error) => {
         this.handleAuthError()
         console.log(this.authService.User())//Mostro l'utente nella console del browser
-        this.dialog.showDialog('Errore: non sei autenticato.')
+        this.dialog.open(MessageComponent, {data: { message: 'Errore: non sei autenticato.' }});
         return throwError(error)
       })
     );

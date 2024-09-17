@@ -3,39 +3,38 @@
 }
 
 .sidenav {
-  width: 250px; /* Aumenta la larghezza del menu laterale */
-  background-color: #f5f5f5; /* Colore di sfondo (opzionale) */
+  width: 250px;
+  background-color: #f5f5f5;
 }
 
-/* Stile per la barra degli strumenti */
 mat-toolbar {
-  background-color: #3f51b5; /* Colore di sfondo della barra degli strumenti */
-  color: white; /* Colore del testo */
+  background-color: #3f51b5;
+  color: white;
   display: flex;
-  justify-content: space-between; /* Spazio tra gli elementi */
-  align-items: center; /* Allinea verticalmente gli elementi */
-  padding: 0 16px; /* Padding laterale */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Ombra per la barra degli strumenti */
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Stile per il pulsante del menu */
+
 .menu-button {
-  color: white; /* Colore dell'icona */
-  margin-right: 16px; /* Spazio tra il pulsante del menu e il titolo del sito */
+  color: white;
+  margin-right: 16px;
 }
 
-/* Icona del menu con tre strisce orizzontali */
+
 .menu-button mat-icon {
-  font-size: 24px; /* Dimensione dell'icona */
+  font-size: 24px;
 }
 
 
 
-/* Media query per design responsivo */
+
 @media (max-width: 768px) {
   mat-toolbar {
-    flex-direction: column; /* Disposizione in colonna per il contenitore */
-    align-items: flex-start; /* Allinea a sinistra */
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   mat-toolbar .site-title {
@@ -68,7 +67,6 @@ mat-toolbar {
 }
 
 
-/* Stile per l'header della Dashboard */
 .dashboard-header {
   padding: 20px;
   background-color: #f5f5f5;
@@ -86,8 +84,6 @@ mat-toolbar {
 }
 
 
-
-/* Stile per i link rapidi */
 .quick-links {
   padding: 20px;
 }
@@ -110,10 +106,10 @@ mat-toolbar {
 }
 
 .welcome-message {
-  font-size: 24px; /* Dimensione del testo aumentata */
-  color: white; /* Colore del testo */
-  margin-left: 350px; /* Allinea il testo a sinistra */
-  margin-right: auto; /* Spazio automatico per spingere il testo verso sinistra */
+  font-size: 24px;
+  color: white;
+  margin-left: 350px;
+  margin-right: auto;
 }
 
 .cart-button {

@@ -1,7 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #sidenav mode="side" class="sidenav">
     <mat-nav-list>
-      <!-- Altri elementi del menu -->
+      <!-- Menù -->
       <mat-list-item routerLink="/home" (click)="sidenav.close()">
         <h3 matLine>Home</h3>
       </mat-list-item>
@@ -26,25 +26,20 @@
   <mat-sidenav-content>
     <!-- Barra degli strumenti con il pulsante di menu e logout -->
     <mat-toolbar>
-      <!-- Pulsante del menu -->
       <button mat-icon-button class="menu-button" aria-label="Menu" (click)="sidenav.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
 
-      <!-- Nome del sito -->
       <span class="site-title">Magic Card Emporium</span>
 
       <span class="example-spacer"></span>
 
-      <!-- Messaggio di benvenuto -->
       <span class="welcome-message">Benvenuto</span>
 
-      <!-- Pulsante del carrello -->
       <button mat-icon-button aria-label="Carrello" routerLink="/cart" class="cart-button">
         <mat-icon>shopping_cart</mat-icon>
       </button>
 
-      <!-- Pulsante logout -->
       <button mat-button class="logout-button" (click)="onClick()">
         <mat-icon>arrow_forward</mat-icon>
         Log Out
@@ -57,7 +52,6 @@
         <h3>Link Rapidi</h3>
         <a mat-button routerLink="home">Vai alla Home</a>
         <a mat-button routerLink="area-privata">Visualizza Profilo</a>
-        <!-- Aggiungi altri link rapidi -->
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

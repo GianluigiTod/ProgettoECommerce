@@ -18,7 +18,7 @@ import {Observable} from "rxjs";
 export class CatalogComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
-  displayedColumns: string[] = ['name', 'rarity', 'price', 'quantity', 'image', 'view', 'quantityBlock', 'addToCart'];
+  displayedColumns: string[] = ['name', 'rarity', 'price', 'image', 'view', 'quantityBlock', 'addToCart'];
   dataSource = new MatTableDataSource<any>([]);
   setCodes: string[] = [];
   setIds: { [key: string]: number } = {};
@@ -89,6 +89,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       })
       this.loadSetCodes();
       this.loadImageUrls();
+      this.errorMessage='';
     }, error => {
       this.handleError(error, "Si è verificato un errore durante il recupero delle carte.");
     });
@@ -149,7 +150,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
           this.http.post<any>(`${API.backend}/api/cart/add`, cartDTO, {
             headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
           }).subscribe(() => {
-              this.dialog.open(MessageComponent, {data: { message: `Aggiunto al carrello: ${card.name}, Quantità: ${this.selectedQuantity}` }});
+              this.dialog.open(MessageComponent, {data: { message: `Aggiunto al carrello: ${card.name}, Quantità: ${this.selectedQuantity[card.id]}` }});
               this.getCards(this.currentPage, this.pageSize, this.currentSortField, this.sortDirection);
             }, (error) => {
               this.handleError(error, "Si è verificato un errore durante l'aggiunta della carta al carrello.");
@@ -206,6 +207,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
       if (this.paginator) {
         this.paginator.length = response.numTotaleCarte;
       }
+      this.errorMessage='';
     }, error => {
       this.handleError(error, "Si è verificato un errore durante la ricerca delle carte.");
     });
@@ -214,6 +216,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   onPageChange(event: any): void {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
+    this.errorMessage='';
     if(this.selectedSetCode !== "Nessun Set"){
       this.getCardsBySetCode(this.selectedSetCode, this.currentPage, this.pageSize);
     }else{
@@ -222,6 +225,7 @@ export class CatalogComponent implements OnInit, AfterViewInit {
   }
 
   viewCardDetails(cardId: number): void {
+    this.errorMessage='';
     this.router.navigate(['/card-details', cardId])
       .then(() => {
         console.log('Navigazione completata con successo');

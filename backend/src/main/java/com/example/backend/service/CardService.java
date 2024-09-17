@@ -96,6 +96,9 @@ public class CardService {
 
     @Transactional
     public Card createCard(CardDTO cardDTO) throws UtenteInesistente, SetInesistente, PriceProblem, QuantityProblem, IOException {
+        if(cardDTO.getName().isBlank()){
+            throw new IllegalArgumentException();
+        }
         Optional<Utente> utenteOptional = utenteRepository.findUtenteById(cardDTO.getVenditoreId());
         if(!utenteOptional.isPresent())
             throw new UtenteInesistente();
@@ -166,6 +169,9 @@ public class CardService {
 
     @Transactional
     public Card aggiornaCarta(Card c) throws CartaInesistente, PriceProblem, QuantityProblem {
+        if(c.getName().isBlank()){
+            throw new IllegalArgumentException();
+        }
         Optional<Card> optionalCard = cardRepository.findCardById(c.getId());
         if(!optionalCard.isPresent()){
             throw new CartaInesistente();

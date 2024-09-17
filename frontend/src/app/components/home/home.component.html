@@ -1,13 +1,14 @@
-<!-- Contenuto della Dashboard -->
 <div class="content">
 
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+  <!-- Sezione per mostrare il numero di elementi nel carrello dell'utente -->
   <div class="section">
     <h3>Carrello</h3>
     <p>Numero di elementi nel carrello: {{ cartItemsCount }}</p>
   </div>
 
+  <!-- Sezione per mostrare le 3 carte più rare messe in vendita dall'utente -->
   <div class="section">
     <h3>Carte in Vendita</h3>
     <div class="card-list">
@@ -16,14 +17,15 @@
           <mat-card-title>{{ card.name }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p><strong>Prezzo:</strong> {{ card.prezzo | currency }}</p>
+          <p><strong>Prezzo:</strong> {{ card.prezzo | currency:'EUR':'symbol' }}</p>
           <p><strong>Set Code:</strong> {{ card.setCode }}</p>
-          <p><strong>Quantità:</strong> {{ card.quantita }}</p>
+          <p><strong>Quantità:</strong> {{ card.quantity }}</p>
         </mat-card-content>
       </mat-card>
     </div>
   </div>
 
+  <!-- Sezione per mostrare gli ultimi 3 ordini effettuati dall'utente -->
   <div class="section">
     <h3>Ultimi Ordini</h3>
     <div class="order-list">
@@ -32,8 +34,8 @@
           <mat-card-title>Ordine #{{ order.id }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <p><strong>Data Ordine:</strong> {{ order.dataOrdine | date }}</p>
-          <p><strong>Prezzo Totale:</strong> {{ order.prezzoTotale | currency }}</p>
+          <p><strong>Data Ordine:</strong> {{ order.dataOrdine | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Prezzo Totale:</strong> {{ order.prezzoTotale | currency:'EUR':'symbol' }}</p>
           <p><strong>Arrivato:</strong> {{ order.arrivato ? 'Sì' : 'No' }}</p>
         </mat-card-content>
       </mat-card>

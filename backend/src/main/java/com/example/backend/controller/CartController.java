@@ -7,17 +7,14 @@ import com.example.backend.exception.UtenteInesistente;
 import com.example.backend.model.CartItem;
 import com.example.backend.dto.CartItemsResponse;
 import com.example.backend.service.CartService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@Validated
 @RequestMapping("/api/cart")
 public class CartController {
 
@@ -43,7 +40,7 @@ public class CartController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<?> addCartItem(@Valid @RequestBody CartItemDTO dto) {
+    public ResponseEntity<?> addCartItem(@RequestBody CartItemDTO dto) {
         try {
             CartItem createdCartItem = cartService.addCartItem(dto);
             return new ResponseEntity<>(createdCartItem, HttpStatus.CREATED);

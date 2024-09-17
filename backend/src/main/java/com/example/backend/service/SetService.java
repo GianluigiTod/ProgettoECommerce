@@ -39,6 +39,9 @@ public class SetService {
 
     @Transactional
     public Set createSetWithImage(String setCode, String setName, MultipartFile file) throws SetEsistente, IOException {
+        if(setCode.isBlank() || setName.isBlank()){
+            throw new IllegalArgumentException();
+        }
         Optional<Set> optionalSet = setRepository.findSetByCode(setCode);
         if(optionalSet.isPresent()) {
             throw new SetEsistente();
@@ -63,6 +66,16 @@ public class SetService {
     }
 
     @Transactional(readOnly = true)
+    public Set ottieniSetDalCodice(String setCode) throws SetInesistente {
+        Optional<Set> optionalSet = setRepository.findSetByCode(setCode);
+        if(optionalSet.isPresent()) {
+            return optionalSet.get();
+        }else{
+            throw new SetInesistente();
+        }
+    }
+
+    @Transactional(readOnly = true)
     public Set ottieniSet(Long id)throws SetInesistente {
         Optional<Set> set = setRepository.findSetById(id);
         if(!set.isPresent()){
@@ -74,6 +87,9 @@ public class SetService {
 
     @Transactional
     public Set aggiornaSet(Set set) throws SetInesistente, SetEsistente {
+        if(set.getSetCode().isBlank() || set.getSetName().isBlank()){
+            throw new IllegalArgumentException();
+        }
         Optional<Set> setOptional = setRepository.findSetById(set.getId());
         if(setOptional.isPresent()){
             Set s_prec= setOptional.get();

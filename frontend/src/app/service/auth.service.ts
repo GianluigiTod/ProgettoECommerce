@@ -95,7 +95,7 @@ export class AuthService {
       });
       return this.http.post<any>(API.tokenUrl, body.toString(), { headers });
     } else {
-      throw new Error('No refresh token available');
+      throw new Error('Nessun refresh token disponibile.');
     }
   }
   getUsername():string{
@@ -103,9 +103,6 @@ export class AuthService {
   }
   getToken():string{
     return this.user.token
-  }
-  getRefreshToken(){
-    return this.user.refreshToken
   }
 
   setToken(t : string){
@@ -120,7 +117,7 @@ export class AuthService {
       let user = JSON.parse(obj) as User
       return user
     }
-    console.log('No user available.')
+    console.log('Nessun utente disponibile.')
     return this.user
   }
 }

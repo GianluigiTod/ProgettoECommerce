@@ -4,7 +4,6 @@
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
 
-  <!-- Bottone "Crea Set" visibile solo se l'utente è un admin -->
   <div class="open-create-button">
     <button *ngIf="ruolo === 'admin'" mat-raised-button color="primary" (click)="toggleCreateSet()">
     Crea Set
@@ -12,7 +11,7 @@
   </div>
 
 
-  <!-- Sezione di creazione del set, visibile solo quando "isCreating" è true -->
+  <!-- Sezione di creazione del set -->
   <div *ngIf="isCreating" class="create-set-section">
     <h3>Crea Nuovo Set</h3>
     <mat-form-field appearance="outline">
@@ -40,6 +39,7 @@
     </div>
   </div>
 
+  <!-- Per visualizzare la lista di set -->
   <table *ngIf="setList.length > 0; else noSets">
     <thead>
     <tr>
@@ -57,7 +57,6 @@
         <img *ngIf="imageUrls[set.id]" [src]="imageUrls[set.id]" alt="Set Image" class="set-image"/>
       </td>
       <td>
-        <!-- Mostra i pulsanti solo se il ruolo è "admin" -->
         <div *ngIf="ruolo === 'admin'">
           <button mat-raised-button color="primary" (click)="editSet(set)">
             Modifica
@@ -75,21 +74,27 @@
     <p>Non ci sono set disponibili.</p>
   </ng-template>
 
-  <div *ngIf="isEditing" class="edit-dialog">
+  <!-- Sezione di modifica dei set -->
+  <div *ngIf="isEditing" id="edit-set-container" class="edit-dialog">
     <h3>Modifica Set</h3>
+    <!-- Input per il codice -->
     <mat-form-field appearance="outline">
       <mat-label>Codice Set</mat-label>
       <input matInput [(ngModel)]="updatedSetCode" />
     </mat-form-field>
+
+    <!-- Input per il nome -->
     <mat-form-field appearance="outline">
       <mat-label>Nome Set</mat-label>
       <input matInput [(ngModel)]="updatedSetName" />
     </mat-form-field>
 
+    <!-- Input per l'immagine -->
     <div class="file-input-container">
       <input type="file" (change)="onFileSelected($event)" id="fileInputUpdate" />
       <label for="fileInputUpdate" class="file-label">Scegli un'immagine (opzionale)</label>
     </div>
+
     <div class="edit-actions">
       <button mat-raised-button color="primary" (click)="updateSet()">
         Conferma

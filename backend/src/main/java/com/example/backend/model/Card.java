@@ -2,10 +2,7 @@ package com.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NonNull;
 
 import java.util.Set;
 
@@ -20,11 +17,9 @@ public class Card {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
     private String name;
 
     @Column(nullable = false)
-    @NotBlank
     private float prezzo;
 
     @Column(name="venditore_username")
@@ -35,7 +30,6 @@ public class Card {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @NotNull
     private Rarity rarity;
 
     @Column(length = 1023)
@@ -51,7 +45,6 @@ public class Card {
     private String imagePath;
 
     @Column(nullable = false)
-    @NotBlank
     private int quantity;
 
     @Version

@@ -108,55 +108,54 @@ public class CartService {
     }
 
 
+    @Transactional
+    public CartItem addCartItem(CartItemDTO dto) throws QuantityProblem, UtenteInesistente, CartaInesistente {
+        Optional<Card> cardOptional = cardRepository.findById(dto.getCardId());
+        if (cardOptional.isPresent()) {
+            Card card = cardOptional.get();
 
-        @Transactional(readOnly = false)
-        public CartItem addCartItem(CartItemDTO dto) throws QuantityProblem, UtenteInesistente, CartaInesistente {
-            Optional<Card> cardOptional = cardRepository.findById(dto.getCardId());
-            if (cardOptional.isPresent()) {
-                Card card = cardOptional.get();
+            Optional<Utente> utenteOptional = utenteRepository.findById(dto.getUtenteId());
+            if (utenteOptional.isPresent()) {
+                Utente utente = utenteOptional.get();
 
-                Optional<Utente> utenteOptional = utenteRepository.findById(dto.getUtenteId());
-                if (utenteOptional.isPresent()) {
-                    Utente utente = utenteOptional.get();
+                if(!utente.getUsername().equals(Utils.getUser()))
+                    throw new IllegalStateException();
 
-                    if(!utente.getUsername().equals(Utils.getUser()))
-                        throw new IllegalStateException();
-
-                    if (dto.getQuantity() > card.getQuantity() || dto.getQuantity() <= 0) {
-                        throw new QuantityProblem();
-                    }
-
-                    CardSnapshot cardSnapshot = new CardSnapshot();
-                    cardSnapshot.setName(card.getName());
-                    cardSnapshot.setSetCode(card.getSetCode());
-                    cardSnapshot.setUsernameVenditore(card.getUsernameVenditore());
-                    cardSnapshot.setSnapCardId(card.getId());
-                    cardSnapshot.setRarity(card.getRarity());
-
-                    Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
-                    if (existingCartItem.isPresent()) {
-                        CartItem item = existingCartItem.get();
-                        if (dto.getQuantity() + item.getQuantity() > card.getQuantity()) {
-                            throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
-                        }
-                        item.setQuantity(item.getQuantity() + dto.getQuantity());
-                        return cartItemRepository.save(item);
-                    }else{
-                        CartItem cartItem = new CartItem();
-                        cartItem.setUtente(utente);
-                        cartItem.setOriginalCard(card);
-                        cartItem.setCardSnapshot(cardSnapshot);
-                        cartItem.setQuantity(dto.getQuantity());
-                        cartItem.setPrezzo(card.getPrezzo());
-                        return cartItemRepository.save(cartItem);
-                    }
-                }else{
-                    throw new UtenteInesistente();
+                if (dto.getQuantity() > card.getQuantity() || dto.getQuantity() <= 0) {
+                    throw new QuantityProblem();
                 }
-            } else {
-                throw new CartaInesistente();
+
+                CardSnapshot cardSnapshot = new CardSnapshot();
+                cardSnapshot.setName(card.getName());
+                cardSnapshot.setSetCode(card.getSetCode());
+                cardSnapshot.setUsernameVenditore(card.getUsernameVenditore());
+                cardSnapshot.setSnapCardId(card.getId());
+                cardSnapshot.setRarity(card.getRarity());
+
+                Optional<CartItem> existingCartItem = cartItemRepository.findByUtenteAndCard(utente, card);
+                if (existingCartItem.isPresent()) {
+                    CartItem item = existingCartItem.get();
+                    if (dto.getQuantity() + item.getQuantity() > card.getQuantity()) {
+                        throw new IllegalArgumentException("La quantità supera l'ammontare totale di carte.");
+                    }
+                    item.setQuantity(item.getQuantity() + dto.getQuantity());
+                    return cartItemRepository.save(item);
+                }else{
+                    CartItem cartItem = new CartItem();
+                    cartItem.setUtente(utente);
+                    cartItem.setOriginalCard(card);
+                    cartItem.setCardSnapshot(cardSnapshot);
+                    cartItem.setQuantity(dto.getQuantity());
+                    cartItem.setPrezzo(card.getPrezzo());
+                    return cartItemRepository.save(cartItem);
+                }
+            }else{
+                throw new UtenteInesistente();
             }
+        } else {
+            throw new CartaInesistente();
         }
+    }
 
     @Transactional
     public CartItem updateCartItem(Long id, int quantity) throws QuantityProblem{

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {AuthService} from "../../service/auth.service";
 import {Observable} from "rxjs";
@@ -25,11 +25,8 @@ export class ListaOrdiniComponent implements OnInit {
   constructor(private http: HttpClient, private authService: AuthService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
-    const token = this.authService.getToken();
-    const username = this.authService.getUsername();
-
-    this.username=username;
-    this.token=token;
+    this.token = this.authService.getToken();
+    this.username=this.authService.getUsername();
     this.getOrders();
   }
 
@@ -47,7 +44,7 @@ export class ListaOrdiniComponent implements OnInit {
     this.getUser(this.username, this.token).subscribe(user => {
       const userId = user.id;
 
-      this.http.get<any>(API.backend + `/api/order/${userId}`, {
+      this.http.get<any[]>(API.backend + `/api/order/${userId}`, {
         headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
         responseType: 'json' as 'json'
       }).subscribe((orders: any[]) => {
@@ -65,9 +62,10 @@ export class ListaOrdiniComponent implements OnInit {
   confermaArrivo(id: number): void {
     this.http.put(API.backend+`/api/order/update/${id}`, {}, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as "json"
+      responseType: 'text'
     }).subscribe(response => {
-      console.log('Conferma arrivo:', response);
+      this.dialog.open(MessageComponent, {data: {message: response}});
+      this.errorMessage='';
       this.getOrders();
     }, error => {
       this.handleError(error, "Si è verificato un errore durante la modifica. Riprova");
@@ -77,14 +75,10 @@ export class ListaOrdiniComponent implements OnInit {
   eliminaOrdine(id: number): void {
     this.http.delete(API.backend+`/api/order/delete/${id}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as "json"
+      responseType: 'text'
     }).subscribe(response => {
-      console.log('Eliminazione ordine:', response);
-
-      this.dialog.open(MessageComponent, {
-        data: {message: 'Cancellazione avvenuta con successo'}
-      });
-
+      this.dialog.open(MessageComponent, {data: {message: response}});
+      this.errorMessage='';
       this.getOrders();
     }, error => {
       this.handleError(error, "Si è verificato un errore durante la cancellazione. Riprova");
@@ -93,19 +87,15 @@ export class ListaOrdiniComponent implements OnInit {
 
   visualizzaDettagliOrdine(id: number): void {
     const ordine = this.orders.find(o => o.id === id);
-
     if (ordine) {
-      this.dialog.open(DettagliOrdineComponent, {
-        data: { ordine },
-      });
+      this.errorMessage='';
+      this.dialog.open(DettagliOrdineComponent, {data: { ordine },});
     } else {
       this.errorMessage = 'Ordine non trovato. Riprova.';
     }
   }
 
   private handleError(error: any, defaultMessage: string): void {
-    console.log(error);
-    this.getOrders();
     if (error.error && typeof error.error === 'string') {
       this.getOrders();
       this.errorMessage = error.error;

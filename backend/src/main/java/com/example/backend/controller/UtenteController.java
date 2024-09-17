@@ -28,6 +28,8 @@ public class UtenteController {
             return new ResponseEntity<>("L'utente "+utente.getId()+" non esiste.", HttpStatus.BAD_REQUEST);
         }catch (UtenteEsistente e){
             return new ResponseEntity<>("L'utente già esiste ", HttpStatus.BAD_REQUEST);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -38,8 +40,9 @@ public class UtenteController {
             return new ResponseEntity<>(ret, HttpStatus.OK);
         }catch(UtenteEsistente e){
             return new ResponseEntity<>("L'utente "+u.getId()+" già esiste.", HttpStatus.BAD_REQUEST);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
-
     }
 
     @DeleteMapping("/delete/{id}")

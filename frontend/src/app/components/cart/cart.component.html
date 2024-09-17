@@ -9,7 +9,7 @@
       <h3>Conferma Acquisto</h3>
       <div *ngFor="let item of cartItems">
         <p><strong>{{ item.cardSnapshot.name }}</strong></p>
-        <p>Prezzo: {{ item.prezzo | currency:'EUR' }}</p>
+        <p>Prezzo: {{ item.prezzo | currency:'EUR':'symbol' }}</p>
         <p>Quantità: {{ item.quantity }}</p>
         <hr />
       </div>
@@ -30,7 +30,7 @@
           <div class="cart-item" *ngFor="let item of cartItems">
             <div class="item-info">
               <p><strong>{{ item.cardSnapshot.name }}</strong></p>
-              <p>Prezzo: {{ item.prezzo | currency:'EUR' }}</p>
+              <p>Prezzo: {{ item.prezzo | currency:'EUR':'symbol' }}</p>
             </div>
 
             <div class="item-quantity">
@@ -47,7 +47,6 @@
                 Rimuovi
               </button>
 
-              <!-- Bottone View per visualizzare i dettagli della carta -->
               <button mat-raised-button color="primary" (click)="viewCardDetails(item.cardSnapshot.snapCardId)">
                 View
               </button>
@@ -62,7 +61,7 @@
 
       <div class="cart-summary">
         <h3>Riepilogo</h3>
-        <p>Totale: {{ total | currency:'EUR' }}</p>
+        <p>Totale: {{ total | currency:'EUR':'symbol' }}</p>
         <button mat-raised-button color="primary" (click)="showConfirmationDialog()">
           Acquista
         </button>

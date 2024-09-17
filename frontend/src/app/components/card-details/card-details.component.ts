@@ -15,7 +15,10 @@ export class CardDetailsComponent implements OnInit, OnChanges {
   cardId: number | null = null;
   card: any = null;
   errorMessage: string = '';
-  imageUrl: string = '';
+  cardImageUrl: string = '';
+  setImageUrl:string = '';
+  set: any = null;
+  token: string = '';
 
   constructor(private http: HttpClient,
               private authService: AuthService,
@@ -25,11 +28,11 @@ export class CardDetailsComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');  // Verifica che il parametro 'id' sia corretto
+      const id = params.get('id');  // Ottengo il parametro id
       this.cardId = id ? +id : null;  // Converte il parametro in un numero
-      console.log(this.cardId);
       if (this.cardId) {
-        this.getCardDetails(this.cardId);  // Chiama la funzione solo se l'id è valido
+        this.token = this.authService.getToken();
+        this.getCardDetails(this.cardId);
       }
     });
   }
@@ -41,23 +44,41 @@ export class CardDetailsComponent implements OnInit, OnChanges {
   }
 
   private getCardDetails(cardId: number): void {
-    const token = this.authService.getToken();
     this.http.get<any>(`${API.backend}/api/card/${cardId}`, {
-      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
     }).subscribe(response => {
       this.card = response;
-      console.log(this.card);
+      this.loadSet(this.card);
       this.http.get(API.backend+`/api/card/${cardId}/image`, {
-        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
+        headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
         responseType: 'text'
       }).subscribe((url: string) => {
-        this.imageUrl=url;
-        console.log(this.imageUrl);
+        this.cardImageUrl=url;
+        this.errorMessage='';
       }, (error) => {
         this.handleError(error, "Impossibile caricare l'immagine della carta.");
       });
     }, error => {
       this.handleError(error, "Si è verificato un errore durante il recupero dei dettagli della carta.");
+    });
+  }
+
+  loadSet(card: any): void{
+    const setCode = card.setCode;
+    this.http.get<any>(`${API.backend}/api/set/set-code/${setCode}`, {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
+    }).subscribe(response => {
+      this.set=response;
+      this.http.get(API.backend+`/api/set/image/${this.set.id}`, {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
+        responseType: 'text'
+      }).subscribe((url: string) => {
+        this.setImageUrl=url;
+      }, (error) => {
+        this.handleError(error, "Impossibile caricare l'immagine del set.");
+      });
+    }, (error) => {
+      this.handleError(error, "Si è verificato un problema durante il recupero del set.");
     });
   }
 

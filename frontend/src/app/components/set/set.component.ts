@@ -25,11 +25,11 @@ export class SetComponent implements OnInit{
   selectedSet: any = null;
   updatedSetCode: string = '';
   updatedSetName: string = '';
-  newSetCode: string = ''; // Nuovi campi per la creazione
+  newSetCode: string = '';
   newSetName: string = '';
-  selectedFile: File | null = null; // File selezionato
+  selectedFile: File | null = null;
 
-  constructor(private authService: AuthService, private http: HttpClient, private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(private authService: AuthService, private http: HttpClient, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.token = this.authService.getToken();
@@ -60,6 +60,7 @@ export class SetComponent implements OnInit{
     }).subscribe((response) => {
       this.setList=response;
       this.loadImageUrls();
+      this.errorMessage='';
     }, (error) => {
       this.handleError(error, "Si è verificato un errore durante il recupero dei set.");
     })
@@ -81,10 +82,10 @@ export class SetComponent implements OnInit{
   deleteSet(id: number): void {
     this.http.delete(API.backend +`/api/set/delete/${id}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as "json"
+      responseType: 'text'
     }).subscribe(
       (response) => {
-        this.dialog.open(MessageComponent, { data: { message: "Set eliminato con successo."}});
+        this.dialog.open(MessageComponent, { data: { message: response}});
         this.getSetList();
       },
       (error) => {
@@ -99,6 +100,12 @@ export class SetComponent implements OnInit{
     this.updatedSetCode = set.setCode;
     this.updatedSetName = set.setName;
     this.cancelCreate();
+    setTimeout(() => {
+      const element = document.getElementById('edit-set-container');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
   cancelEdit(): void {
@@ -109,13 +116,17 @@ export class SetComponent implements OnInit{
   }
 
   updateSet(): void {
+    if(!this.updatedSetCode || !this.updatedSetName) {
+      this.dialog.open(MessageComponent, {data: { message: "I campi 'Codice Set' e 'Nome Set' sono obbligatori" }});
+      return;
+    }
     const updatedSet = {
       id: this.selectedSet.id,
       setCode: this.updatedSetCode,
       setName: this.updatedSetName
     };
 
-    this.http.put(`${API.backend}/api/set/update`, updatedSet, {
+    this.http.put<any>(`${API.backend}/api/set/update`, updatedSet, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
     }).subscribe(
       () => {
@@ -126,7 +137,7 @@ export class SetComponent implements OnInit{
 
           this.http.put(API.backend+`/api/set/update/${this.selectedSet.id}/image`, formData, {
             headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-            responseType: 'text' as "json"
+            responseType: 'text'
           }).subscribe(() => {},
             (error) => {
               this.handleError(error, "Si è verificato un problema durante l'aggiornamento dell'immagine.");
@@ -148,12 +159,12 @@ export class SetComponent implements OnInit{
   }
 
   toggleCreateSet(): void {
-    this.isCreating = !this.isCreating; // Mostra o nasconde la sezione di creazione
+    this.isCreating = !this.isCreating;
     this.cancelEdit();
   }
 
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0] ? event.target.files[0] : null;//In caso se non viene selezionato nessun file, viene settato a null
+    this.selectedFile = event.target.files[0] ? event.target.files[0] : null;
   }
 
   cancelCreate(): void {
@@ -164,6 +175,7 @@ export class SetComponent implements OnInit{
   }
 
   createSet(): void {
+    let url;
     if (!this.newSetCode || !this.newSetName) {
       this.dialog.open(MessageComponent, { data: { message: "Tutti i campi devono essere compilati." } });
       return;
@@ -174,14 +186,13 @@ export class SetComponent implements OnInit{
     formData.append('setName', this.newSetName);
     if (this.selectedFile) {
       formData.append('file', this.selectedFile);
-      var url = API.backend + '/api/set/create-image';
+      url = API.backend + '/api/set/create-image';
     }else{
       url = API.backend + '/api/set/create';
     }
 
     this.http.post(url, formData, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'json' as "json"
     }).subscribe(
       (response) => {
         this.dialog.open(MessageComponent, { data: { message: "Set creato con successo." } });
@@ -196,8 +207,6 @@ export class SetComponent implements OnInit{
   }
 
   private handleError(error: any, defaultMessage: string): void {
-    console.log(error);
-    this.getSetList();
     if (error.error && typeof error.error === 'string') {
       this.getSetList();
       this.errorMessage = error.error;

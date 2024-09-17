@@ -6,12 +6,10 @@ import com.example.backend.dto.CardPageResponse;
 import com.example.backend.exception.*;
 import com.example.backend.model.Card;
 import com.example.backend.service.CardService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +17,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
-@Validated
 @RequestMapping("/api/card")
 public class CardController {
 
@@ -102,7 +99,7 @@ public class CardController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('venditore') or hasRole('admin')")
-    public ResponseEntity<?> createCard(@Valid @RequestBody CardDTO cardDTO) {
+    public ResponseEntity<?> createCard(@RequestBody CardDTO cardDTO) {
         try{
             Card savedCard = cardService.createCard(cardDTO);
             return new ResponseEntity<>(savedCard, HttpStatus.CREATED);
@@ -118,6 +115,8 @@ public class CardController {
             return new ResponseEntity<>("La quantità deve essere maggiore di 0.", HttpStatus.BAD_REQUEST);
         }catch(IOException ioe){
             return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -163,6 +162,8 @@ public class CardController {
             return new ResponseEntity<>("Il prezzo deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
         }catch(QuantityProblem e){
             return new ResponseEntity<>("La quantità deve essere maggiore di 0", HttpStatus.BAD_REQUEST);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
     }
 

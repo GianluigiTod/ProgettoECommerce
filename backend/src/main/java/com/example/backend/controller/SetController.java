@@ -28,6 +28,16 @@ public class SetController {
         return ResponseEntity.ok(setService.ottieniTuttiSet());
     }
 
+    @GetMapping("/set-code/{setCode}")
+    public ResponseEntity<?> getSetByCode(@PathVariable String setCode) {
+        try{
+            Set s = setService.ottieniSetDalCodice(setCode);
+            return new ResponseEntity<>(s, HttpStatus.OK);
+        }catch(SetInesistente e){
+            return new ResponseEntity<>("Il set "+setCode+" non esiste", HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getSet(@PathVariable Long id){
         try{
@@ -52,6 +62,8 @@ public class SetController {
             return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine", HttpStatus.BAD_REQUEST);
         }catch(SetEsistente e){
             return new ResponseEntity<>("Il set "+setCode+" già esiste.", HttpStatus.BAD_REQUEST);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -67,6 +79,8 @@ public class SetController {
             return new ResponseEntity<>("Si è verificato un problema durante la creazione dell'immagine", HttpStatus.INTERNAL_SERVER_ERROR);
         }catch(SetEsistente e){
             return new ResponseEntity<>("Il set "+setCode+" già esiste.", HttpStatus.BAD_REQUEST);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -105,6 +119,8 @@ public class SetController {
             return new ResponseEntity<>("Esiste già un set con setCode: "+set.getSetCode(),HttpStatus.BAD_REQUEST);
         }catch(SetInesistente e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch(IllegalArgumentException e){
+            return new ResponseEntity<>("I campi obbligatori non sono compilati", HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -88,7 +88,7 @@ mat-form-field {
 }
 
 .cart-item .item-actions button.view-button {
-  background-color: #1976d2; /* Colore blu scuro */
+  background-color: #1976d2;
   color: white;
   font-weight: bold;
 }
@@ -98,7 +98,6 @@ mat-form-field {
 }
 
 
-/* Messaggio di errore */
 .error-message {
   color: #d9534f;
   background-color: #f2dede;

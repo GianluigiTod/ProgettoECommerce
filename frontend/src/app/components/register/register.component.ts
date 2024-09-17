@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { API } from "../../constants";
+import {MatDialog} from "@angular/material/dialog";
+import { MessageComponent } from "../finestraMessaggi/message/message.component";
 
 @Component({
   selector: 'app-register',
@@ -19,14 +21,14 @@ export class RegisterComponent {
     indirizzo: '',
   };
 
-  errorMessage: string = ''; // Variabile per memorizzare il messaggio di errore
+  errorMessage: string = '';
   passwordVisible: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog) {}
 
   registerUser(): void {
     if (!this.newUser.username || !this.newUser.password || !this.newUser.email || !this.newUser.ruolo) {
-      this.errorMessage = 'Per favore, compila tutti i campi obbligatori.';
+      this.dialog.open(MessageComponent, {data: {message: "I campi 'Username', 'Password', 'Email' e 'Ruolo' sono obbligatori."}})
       return;
     }
 
@@ -38,18 +40,17 @@ export class RegisterComponent {
 
     this.http.post(url, this.newUser, options).subscribe({
       next: () => {
-        console.log('Utente registrato con successo');
-        this.router.navigate(['/login']); // Reindirizza al login
+        this.dialog.open(MessageComponent, {data: {message: "Utente registrato con successo."}});
+        this.errorMessage = '';
+        this.router.navigate(['/login']);
       },
       error: (error) => {
         if (error.error && typeof error.error === 'string') {
-          // Se l'errore è una stringa (come il messaggio nel tuo ResponseEntity)
           this.errorMessage = error.error;
+          this.dialog.open(MessageComponent, { data: { message: error.error } });
         } else if (error.error && error.error.message) {
-          // Se c'è un messaggio strutturato nel campo `message`
           this.errorMessage = error.error.message;
         } else {
-          // Messaggio generico in caso di errore
           this.errorMessage = 'Si è verificato un errore durante la registrazione. Riprova.';
         }
       }

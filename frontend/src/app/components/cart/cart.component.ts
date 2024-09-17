@@ -23,7 +23,10 @@ export class CartComponent implements OnInit {
   showConfirmation: boolean = false;
   ordine: any;
 
-  constructor(private http: HttpClient, private authService: AuthService, private dialog: MatDialog, private router: Router) {}
+  constructor(private http: HttpClient,
+              private authService: AuthService,
+              private dialog: MatDialog,
+              private router: Router) {}
 
   ngOnInit(): void {
     this.token = this.authService.getToken();
@@ -46,23 +49,19 @@ export class CartComponent implements OnInit {
     this.getUser(this.username, this.token).subscribe(user => {
       const userId = user.id;
 
-
       this.http.get<any>(`${API.backend}/api/cart/${userId}`, {
         headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-        responseType: 'json' as 'json'
       }).subscribe((response) => {
           this.cartItems = response.items;
-          console.log(this.cartItems);
+
           for (let i = 0; i < this.cartItems.length; i++) {
             this.total += this.cartItems[i].prezzo * this.cartItems[i].quantity;
           }
-
           if (response.hasChanged) {
-            this.dialog.open(MessageComponent, {
-              data: { message: response.message }
-            });
+            this.dialog.open(MessageComponent, {data: { message: response.message }});
             this.showConfirmation = false;
           }
+          this.errorMessage='';
         },
         (error) => {
           this.handleError(error, 'Si è verificato un errore durante il recupero degli articoli del carrello. Riprova.');
@@ -80,10 +79,11 @@ export class CartComponent implements OnInit {
     }).subscribe(
       (response) => {
         this.dialog.open(MessageComponent, { data: { message: 'Quantità aggiornata con successo!' } });
+        this.errorMessage='';
         this.getCartItems();
       },
       (error) => {
-        this.handleError(error, 'Errore durante l\'aggiornamento della quantità dell\'articolo.');
+        this.handleError(error, "Errore durante l'aggiornamento della quantità dell'articolo.");
       }
     );
   }
@@ -91,19 +91,19 @@ export class CartComponent implements OnInit {
   deleteCartItem(itemId: number): void {
     this.http.delete(API.backend+`/api/cart/delete/${itemId}`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`),
-      responseType: 'text' as "json"
+      responseType: 'text'
     }).subscribe((response) => {
         this.dialog.open(MessageComponent, { data: { message: 'Articolo rimosso con successo dal carrello!' } });
+        this.errorMessage='';
         this.getCartItems();
       },
       (error) => {
-        this.handleError(error, 'Errore durante la rimozione dell\'articolo dal carrello.');
+        this.handleError(error, "Errore durante la rimozione dell'articolo dal carrello.");
       }
     );
   }
 
   private handleError(error: any, defaultMessage: string): void {
-    console.log(error);
     if (error.error && typeof error.error === 'string') {
       this.getCartItems();
       this.errorMessage = error.error;
@@ -117,7 +117,7 @@ export class CartComponent implements OnInit {
 
   showConfirmationDialog(): void {
     this.showConfirmation = true;
-    this.getCartItems(); // Verifica se ci sono state modifiche
+    this.getCartItems();
   }
 
   cancelCheckout(): void {
@@ -129,12 +129,12 @@ export class CartComponent implements OnInit {
     if(this.showConfirmation){
       for (let i = 0; i<this.cartItems.length; i++) {
         this.cartItemsId[i] = this.cartItems[i].id;
-        console.log(this.cartItemsId[i]);
       }
       this.http.post(API.backend+'/api/order/checkout', this.cartItemsId, {
         headers: new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
       }).subscribe((response) => {
-        console.log("Acquisto effettuato!");
+        this.dialog.open(MessageComponent, {data: {message: "Acquisto effettuato."}});
+        this.errorMessage='';
         this.router.navigate(['lista-ordini']);
         this.showConfirmation = false;
       }, error => {
