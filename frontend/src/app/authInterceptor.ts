@@ -16,31 +16,26 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 || error.status === 403) {
-          return this.handle401Error(request, next);//Gestiamo questo errore ricreando il token
+          return this.handle401Error(request, next);
         }
-
-        if(error.status === 500){
-          const errorMessage = typeof error.error === 'string' ? error.error : 'Errore sconosciuto';
-          this.dialog.open(MessageComponent, {data: { message: errorMessage }});
-        }
-
-        return throwError(error);//Nel caso sia un qualsiasi altro errore lancialo e basta
+        return throwError(error);
       })
     );
   }
 
   handle401Error(request: HttpRequest<any>, next: HttpHandler){
-    return this.authService.refresh().pipe(//utilizzo il metodo refresh per effettuare una richiesta http per ottenere il nuovo token
+    return this.authService.refresh().pipe(
       switchMap((token: any) => {
         this.authService.setToken(token.access_token);
         const authRequest = request.clone({setHeaders: {Authorization: `Bearer ${token.access_token}`}});
         return next.handle(authRequest);
       }),
       catchError((error) => {
-        this.handleAuthError()
-        console.log(this.authService.User())//Mostro l'utente nella console del browser
-        this.dialog.open(MessageComponent, {data: { message: 'Errore: non sei autenticato.' }});
-        return throwError(error)
+        if(error.status === 401 || error.status === 403) {
+          this.handleAuthError()
+          this.dialog.open(MessageComponent, {data: { message: 'Errore: non sei autenticato.' }});
+        }
+        return throwError(error);
       })
     );
   }
